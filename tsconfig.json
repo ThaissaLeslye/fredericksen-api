@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    /* Execução e Módulos */
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    /* Saída (Evita arquivos .js) */
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    
+    /* Rigor e Qualidade */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    /* Outros */
+    "isolatedModules": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
