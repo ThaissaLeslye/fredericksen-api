@@ -1,98 +1,100 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+<div align="center">
+  <h1>🐾 Fredericksen API | Backend Specification</h1>
+  <p><strong>Status:</strong> <code>Fase de Infraestrutura & Autenticação</code></p>
+  
+  [![NestJS](https://img.shields.io/badge/Framework-NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+  [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+  [![Prisma](https://img.shields.io/badge/ORM-Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+</div>
+
+<br>
+
+<p align="justify">
+  Este repositório contém a fundação técnica e a especificação do backend para o projeto <strong>Fredericksen</strong>. A arquitetura foi desenhada sob a ótica de <strong>Engineering Excellence</strong>, priorizando a separação de domínios, segurança de dados sensíveis e um fluxo de entrega profissional.
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+---
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+## 🛠 Stack Técnica Detalhada
+
+### **Core & Language**
+
+- **Framework:** NestJS (Arquitetura Modular & Injeção de Dependência).
+- **Linguagem:** TypeScript (Typing Strict Mode).
+- **Documentação Dinâmica:** Swagger (OpenAPI 3.0) & Compodoc (Arquitetura Visual).
+
+### **Persistência & Infraestrutura**
+
+- **ORM:** Prisma (Type-safe para produtividade e migrações seguras).
+- **Database:** PostgreSQL 15+ (Relacional).
+- **Caching & Session:** Redis (Armazenamento em memória para alta performance e gestão de tokens).
+- **Containerização:** Docker & Docker Compose.
+
+### **Security & Validation (Security by Design)**
+
+- **Autenticação:** Passport.js integrado com Google OAuth 2.0.
+- **Criptografia:** Implementação de **AES-256** para dados em repouso e **TLS/SSL (HTTPS)** para dados em trânsito.
+- **Data Integrity:** Validação estrita via _Class-validator_ e _Pipes_ customizados.
+- **Sanitização:** Middlewares para proteção contra XSS e injeção de dados.
+
+### **Qualidade & Observabilidade (Shift-Left)**
+
+- **Testing Suite:** Jest & Supertest (Foco em TDD e Testes de Integração).
+- **Code Quality:** ESLint & Prettier (Padrões de codificação rigorosos).
+
+---
+
+## Decisões de Arquitetura
+
+### **Vertical Slice Architecture**
+
+Diferente do modelo tradicional em camadas, este projeto adota **Vertical Slices**. Cada funcionalidade (ex: Auth, Profile) é tratada como um módulo independente que contém sua própria lógica de negócio, persistência e validação.
+
+> **Benefício:** Reduz o acoplamento e facilita a manutenção, permitindo que cada "fatia" do sistema evolua sem afetar as demais.
+
+### **NestJS & Modularidade**
+
+O uso do NestJS permite implementar essa visão de fatias verticais através de módulos independentes, utilizando **Dependency Injection** para manter o código testável e organizado.
+
+---
+
+## Engineering & Security Standards
+
+- **Design-First (OpenAPI):** A API foi documentada via Swagger antes da implementação, garantindo um contrato claro entre Frontend e Backend.
+- **Security by Design:** Planejamento de criptografia **AES-256** para dados sensíveis do perfil (como medicamentos e alergias) e integração com **Google OAuth 2.0**.
+- **GitFlow Workflow:** Uso rigoroso de branches (`feature/`, `develop`, `main`) para garantir a integridade do código e um histórico de commits profissional.
+- **Integridade de Dados:** Validação estrita via DTOs e Pipes para garantir que os requisitos de campos obrigatórios (**RFE03**) sejam atendidos antes da persistência no **PostgreSQL**.
+
+---
+
+## Modelagem de Dados
+
+<p align="justify">
+  O sistema baseia-se em uma estrutura relacional otimizada, com uma relação 1:1 entre as entidades <code>usuario</code> e <code>perfil</code>, garantindo que as informações de personalização e dados sensíveis estejam vinculadas de forma segura à identidade do usuário.
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Roadmap
 
-## Project setup
+| Módulo | Atividade Técnica | Status |
+| :--- | :--- | :--- |
+| **01. Discovery & Design** | Refinamento e Produto | ✅ DONE |
+| | Modelagem de Dados | ✅ DONE |
+| | Design de API (Swagger) | ✅ DONE |
+| **02. Backend Core** | Backend: Infra e Auth | 🚧 IN PROGRESS |
+| | Backend: Feature Slice | ⏳ TO DO |
+| **03. Frontend App** | Frontend: Foundation | ⏳ TO DO |
+| | Frontend: Feature Profile | ⏳ TO DO |
+| **04. Cloud & Deploy** | Deploy Nuvem (Render) | ⏳ TO DO |
+| **05. Infrastructure** | Dockerização e Local DB | ⏳ TO DO |
+| | Networking e Túnel SSL | ⏳ TO DO |
+| **06. CI/CD & QA** | Deploy Local (Fins didáticos) | ⏳ TO DO |
+| | Testes QA | ⏳ TO DO |
 
-```bash
-$ npm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+<br>
+<div align="right">
+  <img src="https://img.shields.io/badge/Made%20with%20%E2%9D%A4%20by-Thaissa%20Leslye-FFB6C1?style=flat-square" alt="Made by Thaissa">
+</div>
