@@ -5,13 +5,13 @@ export class CreateUsuarioDto {
     description: 'ID único fornecido pelo Google Auth',
     example: '1029384756',
   })
-  google_id!: string;
+  googleId!: string;
 
   @ApiProperty({
     description: 'Nome completo do usuário',
     example: 'Fulano de Tal',
   })
-  nome!: string;
+  name!: string;
 
   @ApiProperty({
     description: 'E-mail principal da conta Google',
@@ -24,5 +24,5 @@ export class CreateUsuarioDto {
     example: 'https://lh3.googleusercontent.com/a/photo.jpg',
     required: false,
   })
-  foto_url?: string;
+  photo_Url?: string;
 }

@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js" 
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enum para garantir que o tipo sanguíneo seja exatamente um dos valores válidos
+enum BloodType {
+  A_POSITIVE  @map("A+")
+  A_NEGATIVE  @map("A-")
+  B_POSITIVE  @map("B+")
+  B_NEGATIVE  @map("B-")
+  AB_POSITIVE @map("AB+")
+  AB_NEGATIVE @map("AB-")
+  O_POSITIVE  @map("O+")
+  O_NEGATIVE  @map("O-")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  googleId    String    @unique @map("google_id")
+  name        String    @map("nome")
+  email       String    @unique
+  photoUrl    String?   @map("foto_url")
+  lastLogin   DateTime? @map("ultimo_login") @db.Timestamptz
+  createdAt   DateTime  @default(now()) @map("criado_em") @db.Timestamptz
+
+  // Relacionamento 1:1 com Perfil
+  profile     Profile?
+
+  @@map("usuarios") // Nome da tabela no banco (snake_case)
+}
+
+model Profile {
+  id             String    @id @default(uuid())
+  userId         String    @unique @map("usuario_id")
+  medications    String?   @map("medicamentos")
+  allergies      String?   @map("alergias")
+  bloodType      BloodType? @map("tipo_sanguineo")
+  updatedAt      DateTime  @updatedAt @map("atualizado_em") @db.Timestamptz
+
+  // Define a relação: este perfil pertence a um User
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("perfis") // Nome da tabela no banco (snake_case)
+}
