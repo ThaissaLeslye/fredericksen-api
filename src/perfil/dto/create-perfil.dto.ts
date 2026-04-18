@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { BloodType } from '../../../generated/prisma';
+import { BloodType } from '@prisma/client';
 
 export class CreatePerfilDto {
   @ApiProperty({

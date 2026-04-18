@@ -16,5 +16,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  api:
+      build: .
+      container_name: minha-api-nestjs
+      ports:
+        - "3000:3000"
+      volumes:
+        - .:/usr/src/app
+        - /usr/src/app/node_modules
+      environment:
+        - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      depends_on:
+        db:
+          condition: service_healthy
 volumes:
   pgdata:
