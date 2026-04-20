@@ -4,10 +4,14 @@ import { AppService } from './app.service';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { PerfilModule } from './modules/perfil/perfil.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { AuthController } from './modules/auth/auth.controller';
+import { AuthModule } from './modules/auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
-  imports: [UsuarioModule, PerfilModule, PrismaModule],
-  controllers: [AppController],
+  imports: [UsuarioModule, PerfilModule, PrismaModule, AuthModule],
+  controllers: [AppController, AuthController],
   providers: [AppService],
 })
 export class AppModule {}
