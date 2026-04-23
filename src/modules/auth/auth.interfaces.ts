@@ -10,3 +10,8 @@ export interface GoogleUser {
 export interface RequestWithUser extends Request {
   user: GoogleUser;
 }
+
+export interface JwtPayload {
+  sub: string;
+  email: string;
+}

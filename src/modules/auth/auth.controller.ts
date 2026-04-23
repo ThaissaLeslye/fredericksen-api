@@ -18,11 +18,11 @@ export class AuthController {
   async googleAuthRedirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const user = await this.authService.validateGoogleUser(req.user);
 
-    const token = 'JWT_TEMPORARIO_PARA_TESTE';
+    const { access_token } = await this.authService.generateJwt(user);
 
-    res.cookie('access_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+    res.cookie('access_token', access_token, {
+      httpOnly: true, //bloqueia acesso ao jwt via injeção de script
+      secure: process.env.NODE_ENV === 'production', //obriga o navegador a enviar o cookie apenas através de conexões criptografadas (HTTPS)
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24,
     });
