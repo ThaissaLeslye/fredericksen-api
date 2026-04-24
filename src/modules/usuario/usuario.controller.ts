@@ -6,12 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { ActiveUser } from '../auth/auth.interfaces';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-@Controller('usuario')
+@UseGuards(JwtAuthGuard)
+@Controller('profile')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
@@ -23,6 +28,11 @@ export class UsuarioController {
   @Get()
   findAll() {
     return this.usuarioService.findAll();
+  }
+
+  @Get('me')
+  getMe(@CurrentUser() user: ActiveUser) {
+    return user;
   }
 
   @Get(':id')

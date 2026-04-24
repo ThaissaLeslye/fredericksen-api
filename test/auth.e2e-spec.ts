@@ -7,6 +7,9 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../src/modules/prisma/prisma.service';
 import cookieParser from 'cookie-parser';
 import { Profile } from '@prisma/client';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 describe('Auth (E2E)', () => {
   let app: INestApplication;
@@ -42,9 +45,10 @@ describe('Auth (E2E)', () => {
     return request(server).get('/profile').expect(401);
   });
 
-  it('/profile (GET) - deve ter sucesso com cookie válido', () => {
+  it('/profile/me (GET) - deve ter sucesso com cookie válido', () => {
     const payload = { sub: testUser.id, email: testUser.email };
-    const validToken = jwtService.sign(payload);
+    const secret = process.env.JWT_SECRET;
+    const validToken = jwtService.sign(payload, { secret });
 
     interface UserProfileResponse {
       id: string;
@@ -57,7 +61,7 @@ describe('Auth (E2E)', () => {
     const server = app.getHttpServer() as unknown as Server;
 
     return request(server)
-      .get('/profile')
+      .get('/profile/me')
       .set('Cookie', [`access_token=${validToken}`])
       .expect(200)
       .expect((res) => {
