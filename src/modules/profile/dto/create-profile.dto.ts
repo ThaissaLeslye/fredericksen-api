@@ -1,19 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BloodType } from '@prisma/client';
+import { IsString, IsOptional, MaxLength, IsEnum } from 'class-validator';
 
-export class CreatePerfilDto {
+export class CreateProfileDto {
   @ApiProperty({
     description: 'Lista de medicamentos em uso',
     example: 'Quetiapina, Citalopram, Lítio',
     required: false,
   })
-  medicaments?: string;
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
+  medications?: string;
 
   @ApiProperty({
     description: 'Alergias conhecidas',
     example: 'Lactose, Dipirona',
     required: false,
   })
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
   allergies?: string;
 
   @ApiProperty({
@@ -22,5 +29,7 @@ export class CreatePerfilDto {
     example: BloodType.O_POSITIVE,
     required: false,
   })
-  bloodType!: BloodType;
+  @IsEnum(BloodType)
+  @IsOptional()
+  bloodType?: BloodType;
 }

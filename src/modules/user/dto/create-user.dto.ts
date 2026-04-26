@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateUsuarioDto {
+export class CreateUserDto {
   @ApiProperty({
     description: 'ID único fornecido pelo Google Auth',
     example: '1029384756',
