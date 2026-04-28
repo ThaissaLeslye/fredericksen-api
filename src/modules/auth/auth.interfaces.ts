@@ -23,14 +23,9 @@ export interface UserPayload {
   photoUrl?: string;
 }
 
-interface ProfilePayload {
-  id: string;
-}
-
 export interface ActiveUser {
   id: string;
   name: string;
   email: string;
   photoUrl: string | null;
-  profile: ProfilePayload | null;
 }
