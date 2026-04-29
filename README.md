@@ -33,7 +33,7 @@ O **Fredericksen** é um ecossistema projetado sob a ótica de **Security by Des
 - **Containerização**: Uso de Docker para API e Banco de Dados, assegurando isolamento.
 - **Security:**
   - **Non-Root Execution**: Processos executados via usuário node (segurança de privilégio mínimo).
-  - **At Rest:** AES-256-GCM para campos sensíveis.
+  - **At Rest:** AES-256-GCM para campos sensíveis. (Implementando)
   - **In Transit:** Protocolo TLS/SSL obrigatório.
   - **Auth:** Google OAuth 2.0 / OpenID Connect.
 
