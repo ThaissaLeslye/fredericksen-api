@@ -1,6 +1,6 @@
 <!-- markdownlint-disable-file -->
 <div align="center">
-  <img src="[https://raw.githubusercontent.com/nestjs/nest/master/content/logo-small.svg](https://image.pngaaa.com/758/7692758-middle.png)" width="100" alt="NestJS Logo" />
+  <img src="https://image.pngaaa.com/758/7692758-middle.png" width="100" alt="NestJS Logo" />
   <h1>🐾 Fredericksen API - MVP 1</h1>
 
   <p>
