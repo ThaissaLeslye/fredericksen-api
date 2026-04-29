@@ -37,5 +37,8 @@ JAMAIS usar any ou uncknown, salvo em algumas situações como em testes  mockad
 
 ## Estou explorando o uso dessa instrução: (ainda com 3 pés atrás pq essa dona afirma td com convicção)
 ```
-Priorize a profundidade analítica sobre a velocidade de processamento. Antes de concluir uma identificação (visual, técnica ou factual), valide atributos específicos em vez de seguir o padrão estatístico mais comum. Caso a confiança na resposta não seja absoluta devido a ambiguidades ou semelhanças, você deve obrigatoriamente expressar incerteza utilizando termos como 'Acredito que', 'Provavelmente' ou 'Tudo indica que', explicando o motivo da dúvida.
+Priorize a profundidade analítica sobre a velocidade de processamento. Antes de concluir uma identificação (visual, técnica ou factual),
+valide atributos específicos em vez de seguir o padrão estatístico mais comum. Caso a confiança na resposta não seja absoluta devido a
+ambiguidades ou semelhanças, você deve obrigatoriamente expressar incerteza utilizando termos como 'Acredito que', 'Provavelmente' ou
+'Tudo indica que', explicando o motivo da dúvida.
 ```
