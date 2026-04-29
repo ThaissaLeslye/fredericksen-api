@@ -26,14 +26,26 @@ O **Fredericksen** é um ecossistema projetado sob a ótica de **Security by Des
 
 ## Engenharia e Stack
 
-- **Runtime:** Node.js v18+ (LTS)
+- **Runtime:** Node.js v20 (LTS)
 - **Core:** NestJS com Injeção de Dependência e Arquitetura Modular.
 - **ORM:** Prisma para garantia de Type-safety no banco de dados.
 - **Database:** PostgreSQL (Relacional) seguindo normalização de dados.
+- **Containerização**: Uso de Docker para API e Banco de Dados, assegurando isolamento.
 - **Security:**
+  - **Non-Root Execution**: Processos executados via usuário node (segurança de privilégio mínimo).
   - **At Rest:** AES-256-GCM para campos sensíveis.
   - **In Transit:** Protocolo TLS/SSL obrigatório.
   - **Auth:** Google OAuth 2.0 / OpenID Connect.
+
+> [!IMPORTANT]
+> **Engineering Rules:** 
+> * **Strict Type Safety:** Uso obrigatório de `strict: true` e `noImplicitAny` no compilador.
+> * **Zero `any` Policy:** Proibição total do tipo `any`, forçando tipagem explícita em toda a aplicação.
+> * **Standard Casing:** Código em `camelCase` e Banco de Dados em `snake_case` via mapeamento Prisma.
+> * **Domain Integrity:** Uso de `Enums` para valores restritos, garantindo validade desde o schema.
+> * **Async Safety:** Tratamento obrigatório de todas as Promises para evitar `floating promises`.
+> * **Imutabilidade:** Preferência por `readonly` e Signals (Angular) para gestão de estado.
+
 
 ---
 
@@ -41,24 +53,21 @@ O **Fredericksen** é um ecossistema projetado sob a ótica de **Security by Des
 
   <span><img src="./assets/images/MVP1-DER.png"></img><span>
 
-> [!IMPORTANT]
-> **Engineering Rule:** É estritamente proibido o uso de `any` em qualquer camada da aplicação. O TypeScript deve operar em `strict: true`.
-
 ---
 
 ## OpenAPI (Swagger)
 
 <div align="center">
-  <img src="./assets/images/Screenshot 2026-04-29 110354.png" width="49%" style="border-radius: 10px;" alt="Swagger Documentation">
-  <img src="./assets/images/Screenshot 2026-04-29 110610.png" width="49%" style="border-radius: 10px;" alt="Swagger Documentation">
+  <img src="./assets/images/Screenshot 2026-04-29 110354.png" width="100%" style="border-radius: 10px;" alt="Swagger Documentation">
+  <img src="./assets/images/Screenshot 2026-04-29 110610.png" width="100%" style="border-radius: 10px;" alt="Swagger Documentation">
   <img src="./assets/images/Screenshot 2026-04-29 110401.png" width="100%" style="border-radius: 10px;" alt="Swagger Documentation">
 </div>
 
 ---
 
 ## Requisitos funcionais e telas do MVP1
-<img src="./assets/images/Screenshot 2026-04-29 113814.png" height="600px" style="border-radius: 10px;" alt="Swagger Documentation">
-<img src="./assets/images/Screenshot 2026-04-29 114007.png" height="600px" style="border-radius: 10px;" alt="Swagger Documentation">
+<img src="./assets/images/Screenshot 2026-04-29 113814.png" width="100%" style="border-radius: 10px;" alt="Swagger Documentation">
+<img src="./assets/images/Screenshot 2026-04-29 114007.png" width="100%" style="border-radius: 10px;" alt="Swagger Documentation">
 
 <br />
 
@@ -67,5 +76,5 @@ O **Fredericksen** é um ecossistema projetado sob a ótica de **Security by Des
 <div align="right">
   <sub>Construído com 🩷 por <b>Thaissa Leslye</b></sub><br />
   <sub>IA utilizada: Gemini na ferramenta Aprendizado Guiado e modo Raciocínio</sub><br/>
-  <a src="./assets/prompt.md">Acesse o prompt do agente utilizado aqui!</a>
+  <a href="./assets/prompt.md">Acesse o prompt do agente utilizado aqui!</a>
 </div>
