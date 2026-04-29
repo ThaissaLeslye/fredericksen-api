@@ -1,6 +1,6 @@
 <!-- markdownlint-disable-file -->
 <div align="center">
-  <img src="https://image.pngaaa.com/758/7692758-middle.png" width="100" alt="NestJS Logo" />
+  <img src="https://cdn.intuji.com/2022/09/Nestjs_hero1.png" height="100" alt="NestJS Logo" />
   <h1>🐾 Fredericksen API - MVP 1</h1>
 
   <p>
