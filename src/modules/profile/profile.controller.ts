@@ -3,7 +3,7 @@ import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { RequestWithUser } from './profile.interfaces';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ProfileEntity } from './entities/profile.entity';
 
 @Controller('profile')
@@ -11,6 +11,7 @@ import { ProfileEntity } from './entities/profile.entity';
 export class ProfileController {
   constructor(private readonly prisma: ProfileService) {}
 
+  @ApiOperation({ summary: 'Obtém o perfil do usuário logado' })
   @ApiOkResponse({
     description: 'Retorna os dados do usuário logado.',
     type: ProfileEntity,
@@ -21,6 +22,7 @@ export class ProfileController {
     return this.prisma.findOne(userId);
   }
 
+  @ApiOperation({ summary: 'Atualiza o perfil do usuário logado' })
   @ApiOkResponse({
     description: 'Perfil atualizado com sucesso.',
     type: UpdateProfileDto,

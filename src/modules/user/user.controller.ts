@@ -34,8 +34,11 @@ import type { ActiveUser } from '../auth/auth.interfaces';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({ summary: 'Cria um novo utilizador' })
-  @ApiCreatedResponse({ type: UserEntity })
+  @ApiOperation({ summary: 'Cria um novo usuário' })
+  @ApiCreatedResponse({
+    description: 'Usuário criado com sucesso.',
+    type: UserEntity,
+  })
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
     const user = await this.userService.create(createUserDto);
@@ -43,44 +46,53 @@ export class UserController {
   }
 
   @ApiOperation({
-    summary: 'Lista todos os utilizadores (Apenas Admin/Interno)',
+    summary: 'Lista todos os usuários (Apenas Admin/Interno)',
   })
-  @ApiOkResponse({ type: [UserEntity] })
+  @ApiOkResponse({
+    description: 'Lista de todos os usuários retornada com sucesso.',
+    type: [UserEntity],
+  })
   @Get()
   async findAll(): Promise<UserEntity[]> {
     const users = await this.userService.findAll();
     return users.map((user) => new UserEntity(user));
   }
 
-  @ApiOperation({ summary: 'Retorna o perfil do utilizador autenticado' })
+  @ApiOperation({ summary: 'Retorna o perfil do usuário autenticado' })
   @ApiOkResponse({
-    description: 'Dados do utilizador atual extraídos do banco de dados.',
+    description: 'Dados do usuário atual extraídos do banco de dados.',
     type: UserEntity,
   })
   @Get('me')
   async getMe(@CurrentUser() activeUser: ActiveUser): Promise<UserEntity> {
     const user = await this.userService.findOne(activeUser.id);
     if (!user) {
-      throw new NotFoundException('Utilizador não encontrado.');
+      throw new NotFoundException('usuário não encontrado.');
     }
 
     return new UserEntity(user);
   }
 
-  @ApiOperation({ summary: 'Procura um utilizador específico pelo ID' })
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOperation({ summary: 'Procura um usuário específico pelo ID' })
+  @ApiOkResponse({
+    description: 'Usuário encontrado retornado com sucesso.',
+    type: UserEntity,
+  })
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserEntity> {
     const user = await this.userService.findOne(id);
     if (!user) {
-      throw new NotFoundException('Utilizador não encontrado.');
+      throw new NotFoundException('usuário não encontrado.');
     }
 
     return new UserEntity(user);
   }
 
-  @ApiOperation({ summary: 'Atualiza dados de um utilizador' })
-  @ApiOkResponse({ type: UserEntity })
+  @ApiOperation({ summary: 'Atualiza dados de um usuário' })
+  @ApiOkResponse({
+    description: 'Dados do usuário atualizados com sucesso.',
+    type: UserEntity,
+  })
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -90,7 +102,8 @@ export class UserController {
     return new UserEntity(updatedUser);
   }
 
-  @ApiOperation({ summary: 'Remove um utilizador do sistema' })
+  @ApiOperation({ summary: 'Remove um usuário do sistema' })
+  @ApiOkResponse({ description: 'usuário removido com sucesso.' })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(id);

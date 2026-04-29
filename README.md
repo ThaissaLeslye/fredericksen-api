@@ -1,100 +1,71 @@
+<!-- markdownlint-disable-file -->
 <div align="center">
-  <h1>🐾 Fredericksen API | Backend Specification</h1>
-  <p><strong>Status:</strong> <code>Fase de Infraestrutura & Autenticação</code></p>
-  
-  [![NestJS](https://img.shields.io/badge/Framework-NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
-  [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-  [![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-  [![Prisma](https://img.shields.io/badge/ORM-Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)](https://www.prisma.io/)
+  <img src="https://raw.githubusercontent.com/nestjs/nest/master/content/logo-small.svg" width="100" alt="NestJS Logo" />
+  <h1>🐾 Fredericksen API - MVP 1</h1>
+
+  <p>
+    <img src="https://img.shields.io/badge/Status-Fase%20de%20Infraestrutura-C35050?style=flat-square" alt="Status">
+    <img src="https://img.shields.io/badge/Security-AES--256--GCM-C35050?style=flat-square" alt="Security">
+  </p>
+
+  <div>
+    <img src="https://img.shields.io/badge/NestJS-E0234E?style=flat-square&logo=nestjs&logoColor=white" alt="NestJS">
+    <img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
+    <img src="https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white" alt="Prisma">
+    <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white" alt="Postgres">
+  </div>
 </div>
 
-<br>
+<br />
 
-<p align="justify">
-  Este repositório contém a fundação técnica e a especificação do backend para o projeto <strong>Fredericksen</strong>. A arquitetura foi desenhada sob a ótica de <strong>Engineering Excellence</strong>, priorizando a separação de domínios, segurança de dados sensíveis e um fluxo de entrega profissional.
-</p>
+## Missão do Projeto
 
----
-
-## 🛠 Stack Técnica Detalhada
-
-### **Core & Language**
-
-- **Framework:** NestJS (Arquitetura Modular & Injeção de Dependência).
-- **Linguagem:** TypeScript (Typing Strict Mode).
-- **Documentação Dinâmica:** Swagger (OpenAPI 3.0) & Compodoc (Arquitetura Visual).
-
-### **Persistência & Infraestrutura**
-
-- **ORM:** Prisma (Type-safe para produtividade e migrações seguras).
-- **Database:** PostgreSQL 15+ (Relacional).
-- **Caching & Session:** Redis (Armazenamento em memória para alta performance e gestão de tokens).
-- **Containerização:** Docker & Docker Compose.
-
-### **Security & Validation (Security by Design)**
-
-- **Autenticação:** Passport.js integrado com Google OAuth 2.0.
-- **Criptografia:** Implementação de **AES-256** para dados em repouso e **TLS/SSL (HTTPS)** para dados em trânsito.
-- **Data Integrity:** Validação estrita via _Class-validator_ e _Pipes_ customizados.
-- **Sanitização:** Middlewares para proteção contra XSS e injeção de dados.
-
-### **Qualidade & Observabilidade (Shift-Left)**
-
-- **Testing Suite:** Jest & Supertest (Foco em TDD e Testes de Integração).
-- **Code Quality:** ESLint & Prettier (Padrões de codificação rigorosos).
+O **Fredericksen** é um ecossistema projetado sob a ótica de **Security by Design**. O objetivo deste MVP é garantir que dados sensíveis (alergias, medicamentos e tipo sanguíneo) sejam armazenados com criptografia de ponta, acessíveis apenas por identidades validadas via OAuth 2.0.
 
 ---
 
-## Decisões de Arquitetura
+## Engenharia e Stack
 
-### **Vertical Slice Architecture**
-
-Diferente do modelo tradicional em camadas, este projeto adota **Vertical Slices**. Cada funcionalidade (ex: Auth, Profile) é tratada como um módulo independente que contém sua própria lógica de negócio, persistência e validação.
-
-> **Benefício:** Reduz o acoplamento e facilita a manutenção, permitindo que cada "fatia" do sistema evolua sem afetar as demais.
-
-### **NestJS & Modularidade**
-
-O uso do NestJS permite implementar essa visão de fatias verticais através de módulos independentes, utilizando **Dependency Injection** para manter o código testável e organizado.
-
----
-
-## Engineering & Security Standards
-
-- **Design-First (OpenAPI):** A API foi documentada via Swagger antes da implementação, garantindo um contrato claro entre Frontend e Backend.
-- **Security by Design:** Planejamento de criptografia **AES-256** para dados sensíveis do perfil (como medicamentos e alergias) e integração com **Google OAuth 2.0**.
-- **GitFlow Workflow:** Uso rigoroso de branches (`feature/`, `develop`, `main`) para garantir a integridade do código e um histórico de commits profissional.
-- **Integridade de Dados:** Validação estrita via DTOs e Pipes para garantir que os requisitos de campos obrigatórios (**RFE03**) sejam atendidos antes da persistência no **PostgreSQL**.
+- **Runtime:** Node.js v18+ (LTS)
+- **Core:** NestJS com Injeção de Dependência e Arquitetura Modular.
+- **ORM:** Prisma para garantia de Type-safety no banco de dados.
+- **Database:** PostgreSQL (Relacional) seguindo normalização de dados.
+- **Security:**
+  - **At Rest:** AES-256-GCM para campos sensíveis.
+  - **In Transit:** Protocolo TLS/SSL obrigatório.
+  - **Auth:** Google OAuth 2.0 / OpenID Connect.
 
 ---
 
-## Modelagem de Dados
+## Arquitetura de Dados
 
-<p align="justify">
-  O sistema baseia-se em uma estrutura relacional otimizada, com uma relação 1:1 entre as entidades <code>usuario</code> e <code>perfil</code>, garantindo que as informações de personalização e dados sensíveis estejam vinculadas de forma segura à identidade do usuário.
-</p>
+  <span><img src="./assets/images/MVP1-DER.png"></img><span>
+
+> [!IMPORTANT]
+> **Engineering Rule:** É estritamente proibido o uso de `any` em qualquer camada da aplicação. O TypeScript deve operar em `strict: true`.
+
+---
+
+## OpenAPI (Swagger)
+
+<div align="center">
+  <img src="./assets/images/Screenshot 2026-04-29 110354.png" width="49%" style="border-radius: 10px;" alt="Swagger Documentation">
+  <img src="./assets/images/Screenshot 2026-04-29 110610.png" width="49%" style="border-radius: 10px;" alt="Swagger Documentation">
+  <img src="./assets/images/Screenshot 2026-04-29 110401.png" width="100%" style="border-radius: 10px;" alt="Swagger Documentation">
+</div>
 
 ---
 
-## Roadmap
+## Requisitos funcionais e telas do MVP1
+<img src="./assets/images/Screenshot 2026-04-29 113814.png" height="600px" style="border-radius: 10px;" alt="Swagger Documentation">
+<img src="./assets/images/Screenshot 2026-04-29 114007.png" height="600px" style="border-radius: 10px;" alt="Swagger Documentation">
 
-| Módulo | Atividade Técnica | Status |
-| :--- | :--- | :--- |
-| **01. Discovery & Design** | Refinamento e Produto | ✅ DONE |
-| | Modelagem de Dados | ✅ DONE |
-| | Design de API (Swagger) | ✅ DONE |
-| **02. Backend Core** | Backend: Infra e Auth | 🚧 IN PROGRESS |
-| | Backend: Feature Slice | ⏳ TO DO |
-| **03. Frontend App** | Frontend: Foundation | ⏳ TO DO |
-| | Frontend: Feature Profile | ⏳ TO DO |
-| **04. Cloud & Deploy** | Deploy Nuvem (Render) | ⏳ TO DO |
-| **05. Infrastructure** | Dockerização e Local DB | ⏳ TO DO |
-| | Networking e Túnel SSL | ⏳ TO DO |
-| **06. CI/CD & QA** | Deploy Local (Fins didáticos) | ⏳ TO DO |
-| | Testes QA | ⏳ TO DO |
+<br />
 
----
-<br>
+
+
 <div align="right">
-  <img src="https://img.shields.io/badge/Made%20with%20%E2%9D%A4%20by-Thaissa%20Leslye-FFB6C1?style=flat-square" alt="Made by Thaissa">
+  <sub>Construído com 🩷 por <b>Thaissa Leslye</b></sub><br />
+  <sub>IA utilizada: Gemini na ferramenta Aprendizado Guiado e modo Raciocínio</sub><br/>
+  <a src="./assets/prompt.md">Acesse o prompt do agente utilizado aqui!</a>
 </div>
