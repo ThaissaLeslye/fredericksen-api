@@ -10,7 +10,6 @@ export const CurrentUser = createParamDecorator(
   (data: unknown, context: ExecutionContext): ActiveUser => {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
 
-    // Aqui fazemos um "cast" seguro: dizemos que o user é do tipo ActiveUser
     return request.user;
   },
 );

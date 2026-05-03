@@ -7,10 +7,13 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
+import { validate } from './common/config/env.validation';
+import { EncryptionService } from './modules/security/services/encryption/encryption.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      validate,
       isGlobal: true,
     }),
     UserModule,
@@ -19,6 +22,6 @@ import { AuthController } from './modules/auth/auth.controller';
     AuthModule,
   ],
   controllers: [AppController, AuthController],
-  providers: [AppService],
+  providers: [AppService, EncryptionService],
 })
 export class AppModule {}
