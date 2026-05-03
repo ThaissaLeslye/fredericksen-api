@@ -1,11 +1,25 @@
+/**
+ * @file prisma.service.ts
+ * @description Core service for database connectivity and ORM operations.
+ * @responsibility Manages the lifecycle of the Prisma Client and applies security extensions.
+ * @strategy Extends PrismaClient and decorates it with the custom EncryptionExtension.
+ * @logic Injects EncryptionService to enable transparent encryption/decryption of Profile data.
+ * @mapping Ensures all database calls through this service respect the RNF01 security requirements.
+ */
+
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { extendPrismaClient } from './prisma.extension';
+import { EncryptionService } from '../security/services/encryption/encryption.service';
+import { OnModuleInit } from '@nestjs/common';
 
 @Injectable()
-export class PrismaService extends PrismaClient {
-  constructor() {
+export class PrismaService extends PrismaClient implements OnModuleInit {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _extendedClient: any;
+  constructor(private readonly encryptionService: EncryptionService) {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
     });
@@ -13,5 +27,15 @@ export class PrismaService extends PrismaClient {
     const adapter = new PrismaPg(pool);
 
     super({ adapter });
+
+    this._extendedClient = extendPrismaClient(this, this.encryptionService);
+  }
+
+  async onModuleInit() {
+    await this.$connect();
+  }
+  get client() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this._extendedClient;
   }
 }
