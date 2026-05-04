@@ -1,47 +1,53 @@
-# --- ESTÁGIO 1: Build & Development ---
-FROM node:20-slim AS build 
+# --- ESTÁGIO 1: Build ---
+# Fixamos a versão para garantir imutabilidade (exemplo com Node 24 LTS)
+FROM node:24.15.0-slim AS build 
 
-# Instala dependências do sistema para o Prisma
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
 
-# Ajusta a permissão da pasta de trabalho antes de mudar de usuário
-RUN chown node:node /usr/src/app
-
-# Copia arquivos de configuração
+# Copia apenas arquivos de dependência primeiro para otimizar o cache de camadas
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node prisma ./prisma/
 
-# Muda para o usuário node ANTES de instalar e gerar o prisma
-USER node
+# Engineering Excellence: npm ci é determinístico e ideal para CI/CD
+RUN npm ci
 
-# Instala dependências (incluindo devDependencies para o start:dev)
-RUN npm install
-
-# Gera o Prisma Client (agora como usuário node)
+# Gera o Prisma Client antes do build do NestJS
 RUN npx prisma generate
 
-# Copia o restante do código
 COPY --chown=node:node . .
 
-# Build do NestJS
 RUN npm run build
 
-# --- ESTÁGIO 2: Runtime (Production) ---
-FROM node:20-slim AS production
+# Remove dependências de desenvolvimento antes de migrar para o próximo estágio
+RUN npm prune --omit=dev
 
-WORKDIR /usr/src/app
+# --- ESTÁGIO 2: Runtime (Production) ---
+FROM node:24.15.0-slim AS production
+
+# Security by Design: Definindo explicitamente o ambiente
+ENV NODE_ENV=production
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copia apenas o necessário do estágio de build
+WORKDIR /usr/src/app
+
+# Copia apenas o estritamente necessário
 COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 COPY --chown=node:node --from=build /usr/src/app/package.json ./
+COPY --chown=node:node --from=build /usr/src/app/prisma ./prisma
+COPY --chown=node:node --from=build /usr/src/app/prisma.config.ts ./
+COPY --chown=node:node --from=build /usr/src/app/tsconfig.json ./
+COPY --chown=node:node docker-entrypoint.sh ./
+
+RUN chmod +x docker-entrypoint.sh
+
+# Documentação para outros engenheiros e orquestradores
+EXPOSE 3000
 
 USER node
 
-EXPOSE 3000
-
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main"]
