@@ -44,7 +44,7 @@ describe('JwtStrategy', () => {
       making this assertion safe from unintentional scoping side effects 
       and preventing false positives.
     */
-    // eslint-disable-next-line @typescript-eslint/unbound-method
+
     expect(prisma.user.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'uuid-123' },

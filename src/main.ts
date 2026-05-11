@@ -42,4 +42,7 @@ async function bootstrap() {
 
   console.log(`Application is running on: https://rick-api.tllo.app/mvp1`);
 }
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Erro crítico durante a inicialização da aplicação:', err);
+  process.exit(1);
+});

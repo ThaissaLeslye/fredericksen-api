@@ -67,15 +67,12 @@ describe('AuthController', () => {
     it('should validate user, set security cookie and redirect to home', async () => {
       await controller.googleAuthRedirect(mockRequest, mockResponse);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authService.validateGoogleUser).toHaveBeenCalledWith(
         mockRequest.user,
       );
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authService.generateJwt).toHaveBeenCalledWith(mockUser);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         'access_token',
         'fake-jwt',
@@ -86,7 +83,6 @@ describe('AuthController', () => {
         }),
       );
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockResponse.redirect).toHaveBeenCalledWith(
         'http://localhost:4200/home',
       );

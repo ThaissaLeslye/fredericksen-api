@@ -31,7 +31,6 @@ describe('UserService', () => {
         {
           provide: PrismaService,
           useValue: {
-            // Mockando a estrutura aninhada do Prisma
             user: {
               create: jest.fn().mockResolvedValue(mockUser),
               findMany: jest.fn().mockResolvedValue([mockUser]),
@@ -58,7 +57,6 @@ describe('UserService', () => {
 
       const result = await service.create(dto);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: {
           ...dto,
@@ -75,7 +73,6 @@ describe('UserService', () => {
       const id = 'uuid-123';
       const result = await service.findOne(id);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { id },
       });

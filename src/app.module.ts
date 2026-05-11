@@ -30,5 +30,4 @@ import { join } from 'path';
   controllers: [AppController, AuthController],
   providers: [AppService, EncryptionService],
 })
-export class AppModule { }
-
+export class AppModule {}

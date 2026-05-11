@@ -60,7 +60,6 @@ describe('UserController', () => {
     it('deve retornar uma UserEntity baseada no usuário logado', async () => {
       const result = await controller.getMe(mockActiveUser);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.findOne).toHaveBeenCalledWith(mockActiveUser.id);
       expect(result).toBeInstanceOf(UserEntity);
       expect(result.email).toEqual(mockUserFromDb.email);
@@ -73,7 +72,6 @@ describe('UserController', () => {
 
       const result = await controller.update(mockActiveUser.id, updateDto);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.update).toHaveBeenCalledWith(mockActiveUser.id, updateDto);
       expect(result).toBeInstanceOf(UserEntity);
     });
