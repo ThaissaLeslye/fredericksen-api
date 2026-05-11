@@ -29,7 +29,7 @@
     "dk:test": "docker compose run --rm api npm run test",
     "dk:test:e2e": "docker compose run --rm api npm run test:e2e",
     "dk:db:migrate": "docker compose exec api npx prisma migrate dev",
-    "dk:doc:generate":"npx compodoc -p tsconfig.json -d ./documentation"
+    "dk:doc:generate": "npx compodoc -p tsconfig.json -d ./documentation"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -67,6 +67,8 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/pg": "^8.20.0",
     "@types/supertest": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
     "dotenv": "^17.4.2",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
@@ -82,7 +84,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.59.3"
   },
   "jest": {
     "moduleFileExtensions": [
