@@ -16,6 +16,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Create .env file for CI
+        env:
+          CI_DOT_ENV: ${{ secrets.DOT_ENV }}
+        run: |
+          echo "$CI_DOT_ENV" > .env
+
       - name: Install Dependencies
         run: npm ci
 
