@@ -95,7 +95,6 @@ describe('AuthService', () => {
     it('should generate a token with sub and email in the payload', async () => {
       const result = await service.generateJwt(mockUser);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(jwtService.signAsync).toHaveBeenCalledWith({
         sub: mockUser.id,
         email: mockUser.email,

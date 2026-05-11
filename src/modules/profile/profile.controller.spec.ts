@@ -46,7 +46,6 @@ describe('ProfileController', () => {
 
       const result = await controller.findOne(mockReq as any);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.findOne).toHaveBeenCalledWith(mockUser.id);
       expect(result).toEqual(mockProfile);
     });
@@ -66,7 +65,6 @@ describe('ProfileController', () => {
 
         const result = await controller.update(mockReq as any, updateDto);
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(service.update).toHaveBeenCalledWith(userId, updateDto);
         expect(result).toEqual(mockUpdatedProfile);
       });

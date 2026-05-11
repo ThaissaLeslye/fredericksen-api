@@ -51,7 +51,7 @@ describe('ProfileService', () => {
       mockPrismaService.profile.update.mockResolvedValue(expectedResult);
 
       const result = await service.update(userId, updateDto);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
+
       expect(prisma.profile.update).toHaveBeenCalledWith({
         where: { userId },
         data: {
