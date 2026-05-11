@@ -9,9 +9,15 @@ import { AuthModule } from './modules/auth/auth.module';
 import { AuthController } from './modules/auth/auth.controller';
 import { validate } from './common/config/env.validation';
 import { EncryptionService } from './modules/security/services/encryption/encryption.service';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'documentation'),
+      serveRoot: '/mvp1/compodoc',
+    }),
     ConfigModule.forRoot({
       validate,
       isGlobal: true,
@@ -24,4 +30,5 @@ import { EncryptionService } from './modules/security/services/encryption/encryp
   controllers: [AppController, AuthController],
   providers: [AppService, EncryptionService],
 })
-export class AppModule {}
+export class AppModule { }
+

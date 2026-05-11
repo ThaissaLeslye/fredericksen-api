@@ -5,6 +5,9 @@ import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
+const frontend = process.env.FREDERICKSEN_WEB_URL;
+const portNumber = process.env.PORT || 3000;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -17,6 +20,12 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.setGlobalPrefix('mvp1');
+  app.enableCors({
+    origin: frontend,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Fredericksen API')
@@ -27,11 +36,10 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('swagger', app, document);
 
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port, '0.0.0.0');
+  await app.listen(portNumber, '0.0.0.0');
 
-  console.log(`Application is running on: http://localhost:${port}/api`);
+  console.log(`Application is running on: https://rick-api.tllo.app/mvp1`);
 }
 bootstrap();

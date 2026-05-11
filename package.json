@@ -1,12 +1,15 @@
 {
   "name": "fredericksen-api",
   "version": "0.0.1",
-  "description": "Api de um hub familiar.",
+  "description": "Api do Fredericksen MVP1.",
   "author": "Thaissa Leslye Lourenço",
   "private": true,
   "license": "UNLICENSED",
   "overrides": {
-    "@hono/node-server": "1.19.13"
+    "@hono/node-server": "1.19.13",
+    "ajv": "^8.17.2",
+    "picomatch": "^4.0.4",
+    "uuid": "^11.1.1"
   },
   "scripts": {
     "build": "nest build",
@@ -25,7 +28,8 @@
     "dk:test": "docker compose run --rm api npm run test",
     "dk:test:e2e": "docker compose run --rm api npm run test:e2e",
     "dk:db:migrate": "docker compose exec api npx prisma migrate dev",
-    "doc:generate": "compodoc -p tsconfig.json -s -d ./documentation"
+    "doc:generate": "compodoc -p tsconfig.json -s -d ./documentation",
+    "dk:doc:generate":"npx compodoc -p tsconfig.json -d ./documentation"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -34,6 +38,7 @@
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/serve-static": "^5.0.5",
     "@nestjs/swagger": "^11.2.6",
     "@prisma/adapter-pg": "^7.7.0",
     "@prisma/client": "^7.8.0",
@@ -48,6 +53,7 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "^1.2.1",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",

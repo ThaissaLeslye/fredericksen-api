@@ -28,6 +28,8 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - FREDERICKSEN_WEB_URL=${FREDERICKSEN_WEB_URL}
+      - PORT=${PORT}
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
@@ -38,6 +40,18 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - fredericksen-net
+  
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-tunnel
+    restart: always
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
+    command: tunnel --no-autoupdate run --protocol http2
+    depends_on:
+      - api
     networks:
       - fredericksen-net
 

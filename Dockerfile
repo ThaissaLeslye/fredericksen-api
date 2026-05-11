@@ -16,6 +16,8 @@ COPY --chown=node:node . .
 
 RUN npm run build
 
+RUN npm run dk:doc:generate
+
 RUN npm prune --omit=dev
 
 # --- ESTÁGIO 2: Runtime (Production) ---
@@ -33,6 +35,7 @@ COPY --chown=node:node --from=build /usr/src/app/package.json ./
 COPY --chown=node:node --from=build /usr/src/app/prisma ./prisma
 COPY --chown=node:node --from=build /usr/src/app/prisma.config.ts ./
 COPY --chown=node:node --from=build /usr/src/app/tsconfig.json ./
+COPY --from=build /usr/src/app/documentation ./documentation
 COPY --chown=node:node docker-entrypoint.sh ./
 
 RUN chmod +x docker-entrypoint.sh
