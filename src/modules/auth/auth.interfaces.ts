@@ -1,0 +1,31 @@
+export interface GoogleUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  picture: string;
+  accessToken: string;
+  googleId: string;
+}
+
+export interface RequestWithUser extends Request {
+  user: GoogleUser;
+}
+
+export interface JwtPayload {
+  sub: string;
+  email: string;
+}
+
+export interface UserPayload {
+  id: string;
+  email: string;
+  name: string;
+  photoUrl?: string;
+}
+
+export interface ActiveUser {
+  id: string;
+  name: string;
+  email: string;
+  photoUrl: string | null;
+}

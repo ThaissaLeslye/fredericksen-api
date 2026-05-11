@@ -1,0 +1,19 @@
+# Dependências e Builds
+node_modules
+dist
+.npm
+
+# Segredos e Configurações de Ambiente
+.env
+.env.*
+!.env.example
+
+# Versionamento e Logs
+.git
+.gitignore
+*.log
+
+# Infraestrutura 
+Dockerfile
+docker-compose.yml
+.dockerignore
