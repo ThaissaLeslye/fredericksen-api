@@ -1,5 +1,5 @@
 # --- ESTÁGIO 1: Build ---
-FROM node:24.15.0-slim AS build 
+FROM node:22-slim AS build 
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
@@ -21,7 +21,7 @@ RUN npm run dk:doc:generate
 RUN npm prune --omit=dev
 
 # --- ESTÁGIO 2: Runtime (Production) ---
-FROM node:24.15.0-slim AS production
+FROM node:22-slim AS production
 
 ENV NODE_ENV=production
 
