@@ -9,9 +9,11 @@ describe('ProfileService', () => {
   let prisma: PrismaService;
 
   const mockPrismaService = {
-    profile: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+    client: {
+      profile: {
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
     },
   };
 
@@ -34,6 +36,29 @@ describe('ProfileService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('findOne', () => {
+    it('deve buscar um perfil de usuário pelo ID com sucesso', async () => {
+      const userId = 'user-uuid-123';
+      const expectedProfile = {
+        userId,
+        medications: 'Lítio',
+        allergies: 'Poeira',
+      };
+
+      mockPrismaService.client.profile.findUnique.mockResolvedValue(
+        expectedProfile,
+      );
+
+      const result = await service.findOne(userId);
+
+      expect(prisma.client.profile.findUnique).toHaveBeenCalledWith({
+        where: { userId },
+        include: { user: true },
+      });
+      expect(result).toEqual(expectedProfile);
+    });
+  });
+
   describe('update', () => {
     it('deve atualizar o perfil com sucesso e mapear os campos corretamente', async () => {
       const userId = 'user-uuid';
@@ -48,11 +73,11 @@ describe('ProfileService', () => {
         allergies: 'Poeira',
       };
 
-      mockPrismaService.profile.update.mockResolvedValue(expectedResult);
+      mockPrismaService.client.profile.update.mockResolvedValue(expectedResult);
 
       const result = await service.update(userId, updateDto);
 
-      expect(prisma.profile.update).toHaveBeenCalledWith({
+      expect(prisma.client.profile.update).toHaveBeenCalledWith({
         where: { userId },
         data: {
           medications: updateDto.medications,
@@ -71,7 +96,7 @@ describe('ProfileService', () => {
         { code: 'P2025', clientVersion: '5.0.0' },
       );
 
-      mockPrismaService.profile.update.mockRejectedValue(prismaError);
+      mockPrismaService.client.profile.update.mockRejectedValue(prismaError);
 
       await expect(service.update(userId, {})).rejects.toThrow(
         NotFoundException,
