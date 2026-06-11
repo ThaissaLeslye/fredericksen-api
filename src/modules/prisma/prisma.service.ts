@@ -15,10 +15,12 @@ import { extendPrismaClient } from './prisma.extension';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
 import { OnModuleInit } from '@nestjs/common';
 
+type ExtendedPrismaClient = ReturnType<typeof extendPrismaClient>;
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _extendedClient: any;
+  private readonly _extendedClient: ExtendedPrismaClient;
+
   constructor(private readonly encryptionService: EncryptionService) {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
@@ -34,8 +36,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
     await this.$connect();
   }
-  get client() {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  get client(): ExtendedPrismaClient {
     return this._extendedClient;
   }
 }

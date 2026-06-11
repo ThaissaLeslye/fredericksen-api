@@ -1,3 +1,12 @@
+/**
+ * @file profile.service.ts
+ * @description Service layer for Profile resource management.
+ * @responsibility Handles retrieval and mutation of user Profile records.
+ * @strategy Delegates all persistence to PrismaService and maps domain errors to HTTP exceptions.
+ * @logic Exposes findOne and update operations; guards against P2025 (record not found) and unknown failures.
+ * @mapping Fulfills the ProfileModule use-cases consumed by ProfileController.
+ */
+
 import {
   Injectable,
   NotFoundException,
@@ -12,7 +21,7 @@ export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
   findOne(userId: string) {
-    return this.prisma.profile.findUnique({
+    return this.prisma.client.profile.findUnique({
       where: { userId },
       include: {
         user: true,
@@ -22,7 +31,7 @@ export class ProfileService {
 
   async update(userId: string, updateProfileDto: UpdateProfileDto) {
     try {
-      return await this.prisma.profile.update({
+      return await this.prisma.client.profile.update({
         where: { userId },
         data: {
           medications: updateProfileDto.medications,
@@ -31,7 +40,6 @@ export class ProfileService {
         },
       });
     } catch (error) {
-      // Verificamos se o erro é uma instância de erro conhecido do Prisma
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(
