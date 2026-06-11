@@ -2,6 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtStrategy } from './jwt.strategy';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ConfigService } from '@nestjs/config';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
@@ -19,6 +20,12 @@ describe('JwtStrategy', () => {
           provide: PrismaService,
           useValue: {
             user: { findUnique: jest.fn() },
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getOrThrow: jest.fn().mockReturnValue('super-secret-test-key'),
           },
         },
       ],
