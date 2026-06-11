@@ -35,9 +35,11 @@ export class AuthController {
 
     const { access_token } = await this.authService.generateJwt(user);
 
+    const isProduction = process.env.NODE_ENV?.trim() === 'production';
+
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24,
     });

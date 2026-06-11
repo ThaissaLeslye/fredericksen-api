@@ -9,7 +9,7 @@ import { ProfileEntity } from './entities/profile.entity';
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
 export class ProfileController {
-  constructor(private readonly prisma: ProfileService) {}
+  constructor(private readonly profileService: ProfileService) {}
 
   @ApiOperation({ summary: 'Obtém o perfil do usuário logado' })
   @ApiOkResponse({
@@ -19,7 +19,7 @@ export class ProfileController {
   @Get()
   findOne(@Req() req: RequestWithUser) {
     const userId = req.user.id;
-    return this.prisma.findOne(userId);
+    return this.profileService.findOne(userId);
   }
 
   @ApiOperation({ summary: 'Atualiza o perfil do usuário logado' })
@@ -33,6 +33,6 @@ export class ProfileController {
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     const userId = req.user.id;
-    return this.prisma.update(userId, updateProfileDto);
+    return this.profileService.update(userId, updateProfileDto);
   }
 }

@@ -6,7 +6,6 @@ import { UserModule } from './modules/user/user.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { AuthController } from './modules/auth/auth.controller';
 import { validate } from './common/config/env.validation';
 import { EncryptionService } from './modules/security/services/encryption/encryption.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -27,7 +26,7 @@ import { join } from 'path';
     PrismaModule,
     AuthModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService, EncryptionService],
 })
 export class AppModule {}
