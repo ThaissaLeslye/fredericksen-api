@@ -24,5 +24,5 @@ export class CreateUserDto {
     example: 'https://lh3.googleusercontent.com/a/photo.jpg',
     required: false,
   })
-  photo_Url?: string;
+  photoUrl?: string;
 }
