@@ -8,11 +8,15 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { JwtPayload } from '../auth.interfaces';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly prisma: PrismaService) {
-    const secret = process.env.JWT_SECRET;
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {
+    const secret = configService.getOrThrow<string>('JWT_SECRET');
 
     if (!secret) {
       throw new InternalServerErrorException(

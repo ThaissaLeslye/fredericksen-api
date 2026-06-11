@@ -10,6 +10,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
+import { BloodType } from '@prisma/client';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -57,14 +58,13 @@ describe('PrismaService', () => {
     const rawProfileData = {
       medications: 'Dipirona 25mg',
       allergies: 'Penicilina',
-      bloodType: 'O+',
+      bloodType: BloodType.O_POSITIVE,
       userId: 'user-uuid',
     };
 
     const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       await service.client.profile.create({
         data: rawProfileData,
       });
