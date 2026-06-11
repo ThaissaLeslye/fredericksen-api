@@ -15,11 +15,9 @@ import { extendPrismaClient } from './prisma.extension';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
 import { OnModuleInit } from '@nestjs/common';
 
-type ExtendedPrismaClient = ReturnType<typeof extendPrismaClient>;
-
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  private readonly _extendedClient: ExtendedPrismaClient;
+  private _extendedClient: ReturnType<typeof extendPrismaClient>;
 
   constructor(private readonly encryptionService: EncryptionService) {
     const pool = new Pool({
@@ -36,7 +34,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
   async onModuleInit() {
     await this.$connect();
   }
-  get client(): ExtendedPrismaClient {
+  get client() {
     return this._extendedClient;
   }
 }
