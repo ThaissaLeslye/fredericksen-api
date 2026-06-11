@@ -14,14 +14,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { Prisma, Profile } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findOne(userId: string): Promise<Profile | null> {
-    return this.prisma.profile.findUnique({
+  findOne(userId: string) {
+    return this.prisma.client.profile.findUnique({
       where: { userId },
       include: {
         user: true,
@@ -29,12 +29,9 @@ export class ProfileService {
     });
   }
 
-  async update(
-    userId: string,
-    updateProfileDto: UpdateProfileDto,
-  ): Promise<Profile> {
+  async update(userId: string, updateProfileDto: UpdateProfileDto) {
     try {
-      return await this.prisma.profile.update({
+      return await this.prisma.client.profile.update({
         where: { userId },
         data: {
           medications: updateProfileDto.medications,
