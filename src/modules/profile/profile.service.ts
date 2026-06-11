@@ -1,3 +1,12 @@
+/**
+ * @file profile.service.ts
+ * @description Service layer for Profile resource management.
+ * @responsibility Handles retrieval and mutation of user Profile records.
+ * @strategy Delegates all persistence to PrismaService and maps domain errors to HTTP exceptions.
+ * @logic Exposes findOne and update operations; guards against P2025 (record not found) and unknown failures.
+ * @mapping Fulfills the ProfileModule use-cases consumed by ProfileController.
+ */
+
 import {
   Injectable,
   NotFoundException,
