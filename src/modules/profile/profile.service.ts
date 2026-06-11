@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, Profile } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findOne(userId: string) {
+  findOne(userId: string): Promise<Profile | null> {
     return this.prisma.profile.findUnique({
       where: { userId },
       include: {
@@ -20,7 +20,10 @@ export class ProfileService {
     });
   }
 
-  async update(userId: string, updateProfileDto: UpdateProfileDto) {
+  async update(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<Profile> {
     try {
       return await this.prisma.profile.update({
         where: { userId },
@@ -31,7 +34,6 @@ export class ProfileService {
         },
       });
     } catch (error) {
-      // Verificamos se o erro é uma instância de erro conhecido do Prisma
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(
