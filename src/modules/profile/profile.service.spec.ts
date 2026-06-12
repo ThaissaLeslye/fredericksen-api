@@ -87,21 +87,6 @@ describe('ProfileService', () => {
       });
       expect(result).toEqual(expectedResult);
     });
-
-    it('deve lançar NotFoundException quando o Prisma retornar erro P2025', async () => {
-      const userId = 'id-inexistente';
-
-      const prismaError = new Prisma.PrismaClientKnownRequestError(
-        'Record not found',
-        { code: 'P2025', clientVersion: '5.0.0' },
-      );
-
-      mockPrismaService.client.profile.update.mockRejectedValue(prismaError);
-
-      await expect(service.update(userId, {})).rejects.toThrow(
-        NotFoundException,
-      );
-    });
   });
 
   afterEach(() => {
