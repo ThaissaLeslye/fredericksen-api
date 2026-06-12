@@ -7,50 +7,37 @@
  * @mapping Fulfills the ProfileModule use-cases consumed by ProfileController.
  */
 
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findOne(userId: string) {
-    return this.prisma.client.profile.findUnique({
+  async findOne(userId: string) {
+    const profile = await this.prisma.client.profile.findUnique({
       where: { userId },
       include: {
         user: true,
       },
     });
+
+    if (!profile) {
+      throw new NotFoundException(
+        `Perfil para o usuário com ID ${userId} não foi encontrado.`,
+      );
+    }
+
+    return profile;
   }
 
   async update(userId: string, updateProfileDto: UpdateProfileDto) {
-    try {
-      return await this.prisma.client.profile.update({
-        where: { userId },
-        data: {
-          medications: updateProfileDto.medications,
-          allergies: updateProfileDto.allergies,
-          bloodType: updateProfileDto.bloodType,
-        },
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(
-            `Perfil para o usuário com ID ${userId} não existe.`,
-          );
-        }
-      }
+    await this.findOne(userId);
 
-      throw new InternalServerErrorException(
-        'Erro inesperado ao atualizar o perfil.',
-      );
-    }
+    return this.prisma.client.profile.update({
+      where: { userId },
+      data: updateProfileDto,
+    });
   }
 }
