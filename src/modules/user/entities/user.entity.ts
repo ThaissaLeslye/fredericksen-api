@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 export class UserEntity {
   constructor(partial: Partial<UserEntity>) {
@@ -8,6 +9,9 @@ export class UserEntity {
   @ApiProperty({ example: 'uuid-do-usuario' })
   id!: string;
 
+  @Exclude()
+  googleId?: string;
+
   @ApiProperty({ example: 'Fulana de Tal' })
   name!: string;
 
@@ -16,6 +20,9 @@ export class UserEntity {
 
   @ApiProperty({ example: 'https://foto.url', nullable: true })
   photoUrl!: string | null;
+
+  @Exclude()
+  lastLogin?: Date | null;
 
   @ApiProperty()
   createdAt!: Date;

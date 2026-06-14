@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
     "strict": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
@@ -24,6 +23,6 @@
     "noFallthroughCasesInSwitch": false,
     "types": ["jest", "node"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules", "dist", "documentation", "prisma.config.ts"]
 }

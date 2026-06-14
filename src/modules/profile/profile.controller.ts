@@ -22,6 +22,23 @@ export class ProfileController {
     return this.profileService.findOne(userId);
   }
 
+  @ApiOperation({ summary: 'Obtém o perfil do usuário logado (alias /me)' })
+  @ApiOkResponse({
+    description: 'Retorna os dados do usuário logado, com o perfil aninhado.',
+  })
+  @Get('me')
+  async findMe(@Req() req: RequestWithUser) {
+    const { user, ...profile } = await this.profileService.findOne(req.user.id);
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      photoUrl: user.photoUrl,
+      profile,
+    };
+  }
+
   @ApiOperation({ summary: 'Atualiza o perfil do usuário logado' })
   @ApiOkResponse({
     description: 'Perfil atualizado com sucesso.',

@@ -26,7 +26,6 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  app.setGlobalPrefix('mvp1');
   app.enableCors({
     origin: frontend,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
