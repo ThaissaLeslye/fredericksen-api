@@ -8,7 +8,6 @@ import { ProfileModule } from './modules/profile/profile.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { validate } from './common/config/env.validation';
-import { EncryptionService } from './modules/security/services/encryption/encryption.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -31,7 +30,6 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
   controllers: [AppController],
   providers: [
     AppService,
-    EncryptionService,
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
