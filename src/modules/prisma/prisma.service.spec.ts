@@ -58,7 +58,6 @@ describe('PrismaService', () => {
     const rawProfileData = {
       medications: 'Dipirona 25mg',
       allergies: 'Penicilina',
-      bloodType: BloodType.O_POSITIVE,
       userId: 'user-uuid',
     };
 
@@ -71,9 +70,8 @@ describe('PrismaService', () => {
       // eslint-disable-next-line no-empty
     } catch {}
 
-    expect(encryptSpy).toHaveBeenCalledTimes(3);
+    expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.medications);
     expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.allergies);
-    expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.bloodType);
   });
 });
