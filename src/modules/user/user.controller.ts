@@ -27,8 +27,6 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { ActiveUser } from '../auth/auth.interfaces';
 
 @ApiTags('User')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('user')
 export class UserController {
@@ -52,6 +50,8 @@ export class UserController {
     description: 'Lista de todos os usuários retornada com sucesso.',
     type: [UserEntity],
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<UserEntity[]> {
     const users = await this.userService.findAll();
@@ -63,6 +63,8 @@ export class UserController {
     description: 'Dados do usuário atual extraídos do banco de dados.',
     type: UserEntity,
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@CurrentUser() activeUser: ActiveUser): Promise<UserEntity> {
     const user = await this.userService.findOne(activeUser.id);
@@ -78,6 +80,8 @@ export class UserController {
     description: 'Usuário encontrado retornado com sucesso.',
     type: UserEntity,
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserEntity> {
     const user = await this.userService.findOne(id);
@@ -93,6 +97,8 @@ export class UserController {
     description: 'Dados do usuário atualizados com sucesso.',
     type: UserEntity,
   })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -104,6 +110,8 @@ export class UserController {
 
   @ApiOperation({ summary: 'Remove um usuário do sistema' })
   @ApiOkResponse({ description: 'usuário removido com sucesso.' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(id);

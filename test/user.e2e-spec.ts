@@ -33,7 +33,9 @@ describe('User System (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany();
+    await prisma.user.deleteMany({
+      where: { email: 'e2e-test@fredericksen.com' },
+    });
     await app.close();
   });
 
