@@ -7,7 +7,7 @@
  * @mapping Targets the 'Profile' table to ensure sensitive data protection.
  */
 
-import { PrismaClient, BloodType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
 
 export const extendPrismaClient = (
@@ -29,11 +29,6 @@ export const extendPrismaClient = (
               args.data.allergies,
             );
           }
-          if (args.data.bloodType) {
-            args.data.bloodType = encryptionService.encrypt(
-              args.data.bloodType,
-            ) as unknown as BloodType;
-          }
           return query(args);
         },
         async update({ args, query }) {
@@ -46,11 +41,6 @@ export const extendPrismaClient = (
             args.data.allergies = encryptionService.encrypt(
               args.data.allergies,
             );
-          }
-          if (typeof args.data.bloodType === 'string') {
-            args.data.bloodType = encryptionService.encrypt(
-              args.data.bloodType,
-            ) as unknown as BloodType;
           }
           return query(args);
         },
@@ -71,14 +61,6 @@ export const extendPrismaClient = (
           compute(profile) {
             return profile.allergies
               ? encryptionService.decrypt(profile.allergies)
-              : null;
-          },
-        },
-        bloodType: {
-          needs: { bloodType: true },
-          compute(profile) {
-            return profile.bloodType
-              ? encryptionService.decrypt(profile.bloodType)
               : null;
           },
         },
