@@ -1,3 +1,12 @@
+/**
+ * @file app.module.ts
+ * @description Root module of the NestJS application.
+ * @responsibility Orchestrates the application's lifecycle by aggregating core, feature, and configuration modules.
+ * @strategy Configures global behaviors (environment validation, static file serving, and logging) and registers feature domains.
+ * @logic Integrates ConfigModule with custom env validation, sets up Compodoc documentation serving via ServeStaticModule, registers global LoggingInterceptor, and imports core modules (User, Profile, Prisma, Auth).
+ * @mapping Acts as the central registry linking NestJS components, controllers (AppController), and providers (AppService) to the main application context.
+ */
+
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
