@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { JwtStrategy } from './jwt.strategy';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
 
 describe('JwtStrategy', () => {
   let strategy: JwtStrategy;
@@ -72,5 +73,53 @@ describe('JwtStrategy', () => {
     await expect(
       strategy.validate({ sub: 'invalid-id', email: '' }),
     ).rejects.toThrow(UnauthorizedException);
+  });
+
+  describe('extractJwt', () => {
+    it('deve extrair o token do cookie corretamente quando presente', () => {
+      const mockRequest = {
+        cookies: {
+          access_token: 'valid-jwt-token',
+        },
+      } as unknown as Request;
+
+      const extractFn = JwtStrategy['extractJwt'];
+      const result = extractFn(mockRequest);
+
+      expect(result).toBe('valid-jwt-token');
+    });
+
+    it('deve retornar null se o cookie access_token não estiver presente', () => {
+      const mockRequest = {
+        cookies: {},
+      } as unknown as Request;
+
+      const extractFn = JwtStrategy['extractJwt'];
+      const result = extractFn(mockRequest);
+
+      expect(result).toBeNull();
+    });
+
+    it('deve retornar null se o objeto de cookies for indefinido', () => {
+      const mockRequest = {} as unknown as Request;
+
+      const extractFn = JwtStrategy['extractJwt'];
+      const result = extractFn(mockRequest);
+
+      expect(result).toBeNull();
+    });
+
+    it('deve retornar null se o token não for uma string', () => {
+      const mockRequest = {
+        cookies: {
+          access_token: true,
+        },
+      } as unknown as Request;
+
+      const extractFn = JwtStrategy['extractJwt'];
+      const result = extractFn(mockRequest);
+
+      expect(result).toBeNull();
+    });
   });
 });
