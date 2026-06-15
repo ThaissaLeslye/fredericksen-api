@@ -43,10 +43,36 @@ describe('EncryptionService', () => {
     expect(decrypted).toBe(originalText);
   });
 
-  it('should throw InternalServerErrorException when data is malformed (missing ":")', () => {
+  it('should throw InternalServerErrorException when payload is missing the separation colon', () => {
     const invalidData = 'textoSemSeparador';
 
     expect(() => service.decrypt(invalidData)).toThrow(
+      InternalServerErrorException,
+    );
+  });
+  it('should throw InternalServerErrorException when key length is invalid during initialization', async () => {
+    const shortKey = randomBytes(16).toString('base64');
+    const invalidModuleBuilder = Test.createTestingModule({
+      providers: [
+        EncryptionService,
+        {
+          provide: ConfigService,
+          useValue: {
+            getOrThrow: jest.fn().mockReturnValue(shortKey),
+          },
+        },
+      ],
+    });
+
+    await expect(invalidModuleBuilder.compile()).rejects.toThrow(
+      InternalServerErrorException,
+    );
+  });
+
+  it('should throw InternalServerErrorException when cryptographic decryption engine fails', () => {
+    const corruptPayloadWithValidFormat = '1234:abcdef';
+
+    expect(() => service.decrypt(corruptPayloadWithValidFormat)).toThrow(
       InternalServerErrorException,
     );
   });
