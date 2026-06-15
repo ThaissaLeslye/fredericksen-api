@@ -9,8 +9,9 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
+import { extendPrismaClient } from './prisma.extension';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
-import { BloodType } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -34,6 +35,8 @@ describe('PrismaService', () => {
 
     service = module.get<PrismaService>(PrismaService);
     encryptionService = module.get<EncryptionService>(EncryptionService);
+
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -88,5 +91,87 @@ describe('PrismaService', () => {
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.medications);
     expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.allergies);
+  });
+
+  it('should encrypt sensitive profile fields during database update operations', async () => {
+    const updateData = {
+      medications: 'Paracetamol 500mg',
+      allergies: 'AAS',
+    };
+
+    const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
+
+    try {
+      await service.client.profile.update({
+        where: { userId: 'user-uuid' },
+        data: updateData,
+      });
+    } catch {}
+
+    expect(encryptSpy).toHaveBeenCalledWith(updateData.medications);
+    expect(encryptSpy).toHaveBeenCalledWith(updateData.allergies);
+  });
+
+  it('should decrypt sensitive profile fields when computing query results from database', () => {
+    (encryptionService.decrypt as jest.Mock).mockReturnValue(
+      'decrypted_mock_value',
+    );
+
+    const mockPrismaClient = {
+      $extends: jest
+        .fn()
+        .mockImplementation((extensionObject) => extensionObject),
+    } as unknown as PrismaClient;
+
+    const extensionConfig: any = extendPrismaClient(
+      mockPrismaClient,
+      encryptionService,
+    );
+
+    const computeMedications =
+      extensionConfig.result.profile.medications.compute;
+    const computeAllergies = extensionConfig.result.profile.allergies.compute;
+
+    const mockProfileRecord = {
+      medications: 'encrypted_meds_hex',
+      allergies: 'encrypted_allergies_hex',
+    };
+
+    const decryptedMeds = computeMedications(mockProfileRecord);
+    const decryptedAllergies = computeAllergies(mockProfileRecord);
+
+    expect(encryptionService.decrypt).toHaveBeenCalledWith(
+      'encrypted_meds_hex',
+    );
+    expect(encryptionService.decrypt).toHaveBeenCalledWith(
+      'encrypted_allergies_hex',
+    );
+    expect(decryptedMeds).toBe('decrypted_mock_value');
+    expect(decryptedAllergies).toBe('decrypted_mock_value');
+  });
+
+  it('should return null during result computation if sensitive fields are absent or null', async () => {
+    const clientWithMockDb = service.client.$extends({
+      query: {
+        profile: {
+          findUnique() {
+            return Promise.resolve({
+              medications: null,
+              allergies: null,
+            } as unknown as {
+              medications: string | null;
+              allergies: string | null;
+            });
+          },
+        },
+      },
+    });
+
+    const result = await clientWithMockDb.profile.findUnique({
+      where: { userId: 'user-uuid' },
+    });
+
+    expect(result?.medications).toBeNull();
+    expect(result?.allergies).toBeNull();
   });
 });
