@@ -1,4 +1,7 @@
-import { UnauthorizedException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtStrategy } from './jwt.strategy';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -120,6 +123,24 @@ describe('JwtStrategy', () => {
       const result = extractFn(mockRequest);
 
       expect(result).toBeNull();
+    });
+
+    it('deve retornar null se o objeto request for indefinido ou nulo', () => {
+      const extractFn = JwtStrategy['extractJwt'];
+      const result = extractFn(null as unknown as Request);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('Constructor Guards', () => {
+    it('deve lançar InternalServerErrorException se o segredo retornado for avaliado como uma string vazia ou nula', () => {
+      const mockConfigService = {
+        getOrThrow: jest.fn().mockReturnValue(''),
+      } as unknown as ConfigService;
+
+      expect(() => {
+        new JwtStrategy(prisma, mockConfigService);
+      }).toThrow(InternalServerErrorException);
     });
   });
 });
