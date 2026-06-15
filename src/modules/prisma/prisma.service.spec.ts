@@ -34,7 +34,6 @@ describe('PrismaService', () => {
 
     service = module.get<PrismaService>(PrismaService);
     encryptionService = module.get<EncryptionService>(EncryptionService);
-    jest.spyOn(service, '$connect').mockImplementation(async () => {});
   });
 
   it('should be defined', () => {
@@ -54,6 +53,22 @@ describe('PrismaService', () => {
     expect(connectSpy).toHaveBeenCalled();
   });
 
+  it('should call $disconnect on module destroy to release database pool resources', async () => {
+    const disconnectSpy = jest
+      .spyOn(service, '$disconnect')
+      .mockImplementation(async () => {});
+    await service.onModuleDestroy();
+    expect(disconnectSpy).toHaveBeenCalled();
+  });
+
+  it('should propagate connection errors and reject if the database is unreachable during startup', async () => {
+    const dbError = new Error('Connection refused at postgresql://db:5432');
+    jest.spyOn(service, '$connect').mockRejectedValue(dbError);
+
+    await expect(service.onModuleInit()).rejects.toThrow(
+      'Connection refused at postgresql://db:5432',
+    );
+  });
   it('should encrypt sensitive profile fields before database insertion', async () => {
     const rawProfileData = {
       medications: 'Dipirona 25mg',
