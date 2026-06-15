@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileService } from './profile.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 describe('ProfileService', () => {
   let service: ProfileService;
@@ -57,6 +56,17 @@ describe('ProfileService', () => {
       });
       expect(result).toEqual(expectedProfile);
     });
+
+    it('deve lançar NotFoundException quando o perfil não for encontrado no banco de dados', async () => {
+      const userId = 'user-uuid-inexistente';
+      mockPrismaService.client.profile.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne(userId)).rejects.toThrow(NotFoundException);
+      expect(prisma.client.profile.findUnique).toHaveBeenCalledWith({
+        where: { userId },
+        include: { user: true },
+      });
+    });
   });
 
   describe('update', () => {
@@ -73,6 +83,7 @@ describe('ProfileService', () => {
         allergies: 'Poeira',
       };
 
+      mockPrismaService.client.profile.findUnique.mockResolvedValue({ userId });
       mockPrismaService.client.profile.update.mockResolvedValue(expectedResult);
 
       const result = await service.update(userId, updateDto);

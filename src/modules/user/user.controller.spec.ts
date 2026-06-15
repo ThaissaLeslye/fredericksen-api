@@ -12,6 +12,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { UserEntity } from './entities/user.entity';
 import { ActiveUser } from '../auth/auth.interfaces';
+import { NotFoundException } from '@nestjs/common';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -41,8 +42,13 @@ describe('UserController', () => {
         {
           provide: UserService,
           useValue: {
-            findOne: jest.fn().mockResolvedValue(mockUserFromDb),
+            findAll: jest.fn().mockResolvedValue([mockUserFromDb]),
+            findOne: jest.fn().mockImplementation((id: string) => {
+              if (id === 'uuid-inexistente') return Promise.resolve(null);
+              return Promise.resolve(mockUserFromDb);
+            }),
             update: jest.fn().mockResolvedValue(mockUserFromDb),
+            remove: jest.fn().mockResolvedValue({ deleted: true }),
           },
         },
       ],
@@ -56,6 +62,16 @@ describe('UserController', () => {
     expect(controller).toBeDefined();
   });
 
+  describe('findAll', () => {
+    it('deve retornar um array de UserEntity', async () => {
+      const result = await controller.findAll();
+
+      expect(service.findAll).toHaveBeenCalled();
+      expect(result).toBeInstanceOf(Array);
+      expect(result[0]).toBeInstanceOf(UserEntity);
+    });
+  });
+
   describe('getMe', () => {
     it('deve retornar uma UserEntity baseada no usuário logado', async () => {
       const result = await controller.getMe(mockActiveUser);
@@ -63,6 +79,21 @@ describe('UserController', () => {
       expect(service.findOne).toHaveBeenCalledWith(mockActiveUser.id);
       expect(result).toBeInstanceOf(UserEntity);
       expect(result.email).toEqual(mockUserFromDb.email);
+    });
+  });
+
+  describe('findOne', () => {
+    it('deve retornar uma UserEntity quando o ID existir', async () => {
+      const result = await controller.findOne('uuid-123');
+
+      expect(service.findOne).toHaveBeenCalledWith('uuid-123');
+      expect(result).toBeInstanceOf(UserEntity);
+    });
+
+    it('deve lançar NotFoundException quando o serviço retornar null', async () => {
+      await expect(controller.findOne('uuid-inexistente')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -74,6 +105,15 @@ describe('UserController', () => {
 
       expect(service.update).toHaveBeenCalledWith(mockActiveUser.id, updateDto);
       expect(result).toBeInstanceOf(UserEntity);
+    });
+  });
+
+  describe('remove', () => {
+    it('deve chamar o service.remove com o ID correto', async () => {
+      const result = await controller.remove('uuid-123');
+
+      expect(service.remove).toHaveBeenCalledWith('uuid-123');
+      expect(result).toEqual({ deleted: true });
     });
   });
 });
