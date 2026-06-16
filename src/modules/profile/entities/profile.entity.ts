@@ -8,6 +8,9 @@ export class ProfileEntity {
   @ApiProperty({ example: 'Remédio A, Remédio B', nullable: true })
   medications!: string | null;
 
+  @ApiProperty({ example: 'Dipirona, Lactose, Glúten', nullable: true })
+  allergies!: string | null;
+
   @ApiProperty({ enum: BloodType, example: 'O+' })
   bloodType!: BloodType | null;
 }
