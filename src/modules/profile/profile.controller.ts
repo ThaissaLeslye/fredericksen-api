@@ -3,12 +3,26 @@ import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { RequestWithUser } from './profile.interfaces';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiOkResponse, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiCookieAuth,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+} from '@nestjs/swagger';
 import { ProfileEntity } from './entities/profile.entity';
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
 @ApiCookieAuth()
+@ApiUnauthorizedResponse({
+  description:
+    'Acesso negado: Cookie access_token ausente, expirado ou inválido.',
+})
+@ApiNotFoundResponse({
+  description:
+    'Recurso não encontrado: O perfil solicitado não existe para o usuário informado.',
+})
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
