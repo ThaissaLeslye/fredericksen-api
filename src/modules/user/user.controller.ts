@@ -15,7 +15,7 @@ import {
   ApiTags,
   ApiOkResponse,
   ApiCreatedResponse,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -50,7 +50,7 @@ export class UserController {
     description: 'Lista de todos os usuários retornada com sucesso.',
     type: [UserEntity],
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<UserEntity[]> {
@@ -63,7 +63,7 @@ export class UserController {
     description: 'Dados do usuário atual extraídos do banco de dados.',
     type: UserEntity,
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@CurrentUser() activeUser: ActiveUser): Promise<UserEntity> {
@@ -80,7 +80,7 @@ export class UserController {
     description: 'Usuário encontrado retornado com sucesso.',
     type: UserEntity,
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserEntity> {
@@ -97,7 +97,7 @@ export class UserController {
     description: 'Dados do usuário atualizados com sucesso.',
     type: UserEntity,
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
@@ -110,7 +110,7 @@ export class UserController {
 
   @ApiOperation({ summary: 'Remove um usuário do sistema' })
   @ApiOkResponse({ description: 'usuário removido com sucesso.' })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
