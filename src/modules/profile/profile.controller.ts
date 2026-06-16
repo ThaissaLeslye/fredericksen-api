@@ -3,11 +3,12 @@ import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import type { RequestWithUser } from './profile.interfaces';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiCookieAuth } from '@nestjs/swagger';
 import { ProfileEntity } from './entities/profile.entity';
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
+@ApiCookieAuth()
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
