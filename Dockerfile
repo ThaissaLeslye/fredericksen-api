@@ -42,5 +42,8 @@ EXPOSE 3000
 
 USER node
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD node -e "const http = require('http'); const req = http.request({ host: '127.0.0.1', port: process.env.PORT || 3000, path: '/health', method: 'GET', timeout: 3000 }, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();"
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "dist/main"]
