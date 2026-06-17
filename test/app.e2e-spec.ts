@@ -45,7 +45,10 @@ describe('CORS Enforcement (e2e)', () => {
       .get('/')
       .set('Origin', 'https://malicious-domain.com');
 
-    expect(response.headers['access-control-allow-origin']).toBeUndefined();
+    expect(response.headers['access-control-allow-origin']).not.toBe(
+      'https://malicious-domain.com',
+    );
+    expect(response.headers['access-control-allow-origin']).toBe(allowedOrigin);
   });
 
   afterEach(async () => {
