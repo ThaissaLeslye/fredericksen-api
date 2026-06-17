@@ -35,8 +35,31 @@ jobs:
       - name: Unit Tests
         run: npm run test
 
-      - name: Validate Docker Production Build
-        run: docker build . --target production
+      - name: Start Containers and Validate Healthcheck
+        run: |
+          docker compose up -d --build api
+
+          echo "Aguardando inicialização dos containers e validação do Healthcheck..."
+          for i in {1..12}; do
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' minha-api-nestjs 2>/dev/null || echo "starting")
+            echo "Status atual do container: $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Sucesso: O container foi validado e está totalmente saudável!"
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "ERRO: O container não ficou saudável dentro do tempo limite."
+          echo "=== Logs da API ==="
+          docker compose logs api
+          echo "=== Estado do Docker ==="
+          docker inspect minha-api-nestjs
+          exit 1
+
+      - name: Stop Containers
+        if: always()
+        run: docker compose down
 
   deploy:
     runs-on: self-hosted
