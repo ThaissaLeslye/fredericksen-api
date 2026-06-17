@@ -26,10 +26,22 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  if (!frontend) {
+    throw new Error(
+      'Erro Crítico: A variável FREDERICKSEN_WEB_URL não foi informada.',
+    );
+  }
+
+  const sanitizedOrigin: string = frontend.endsWith('/')
+    ? frontend.slice(0, -1)
+    : frontend;
+
   app.enableCors({
-    origin: frontend,
+    origin: sanitizedOrigin,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
+    allowedHeaders: 'Content-Type,Accept,Authorization',
   });
 
   const config = new DocumentBuilder()
