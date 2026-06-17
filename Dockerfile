@@ -33,6 +33,7 @@ COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 COPY --chown=node:node --from=build /usr/src/app/package.json ./
 COPY --chown=node:node --from=build /usr/src/app/prisma ./prisma
+COPY --chown=node:node --from=build /usr/src/app/prisma.config.ts ./
 COPY --from=build /usr/src/app/documentation ./documentation
 COPY --chown=node:node docker-entrypoint.sh ./
 
