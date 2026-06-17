@@ -16,6 +16,7 @@ import { UserModule } from './modules/user/user.module';
 import { ProfileModule } from './modules/profile/profile.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HealthModule } from './modules/health/health.module';
 import { validate } from './common/config/env.validation';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -35,6 +36,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     ProfileModule,
     PrismaModule,
     AuthModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
