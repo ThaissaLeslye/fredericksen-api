@@ -1,6 +1,6 @@
 services:
-  db: 
-    image: postgres:16-alpine 
+  db:
+    image: postgres:16-alpine
     container_name: meu-banco-pg
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
@@ -9,7 +9,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -17,12 +17,12 @@ services:
       - fredericksen-net
 
   api:
-    build: 
+    build:
       context: .
       target: production
     container_name: minha-api-nestjs
     env_file:
-    - .env
+      - .env
     environment:
       - FREDERICKSEN_WEB_URL=${FREDERICKSEN_WEB_URL}
       - PORT=${PORT}
@@ -36,9 +36,21 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "const http = require('http'); const port = process.env.PORT || 3000; const req = http.request({ host: '127.0.0.1', port, path: '/health', method: 'GET', timeout: 3000 }, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     networks:
       - fredericksen-net
-  
+
   tunnel:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared-tunnel
