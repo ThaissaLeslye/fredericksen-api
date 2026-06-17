@@ -15,8 +15,10 @@ import {
   ApiTags,
   ApiOkResponse,
   ApiCreatedResponse,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiOperation,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -50,7 +52,10 @@ export class UserController {
     description: 'Lista de todos os usuários retornada com sucesso.',
     type: [UserEntity],
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Acesso negado: Token inválido ou ausente nos cookies.',
+  })
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(): Promise<UserEntity[]> {
@@ -63,7 +68,11 @@ export class UserController {
     description: 'Dados do usuário atual extraídos do banco de dados.',
     type: UserEntity,
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiUnauthorizedResponse({ description: 'Acesso negado: Sessão inválida.' })
+  @ApiNotFoundResponse({
+    description: 'Usuário logado não foi localizado no banco de dados.',
+  })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@CurrentUser() activeUser: ActiveUser): Promise<UserEntity> {
@@ -80,7 +89,13 @@ export class UserController {
     description: 'Usuário encontrado retornado com sucesso.',
     type: UserEntity,
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Acesso negado: Requer autenticação.',
+  })
+  @ApiNotFoundResponse({
+    description: 'O ID fornecido não corresponde a nenhum usuário cadastrado.',
+  })
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserEntity> {
@@ -97,7 +112,13 @@ export class UserController {
     description: 'Dados do usuário atualizados com sucesso.',
     type: UserEntity,
   })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiUnauthorizedResponse({
+    description: 'Acesso negado: Permissão insuficiente.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Impossível atualizar: Usuário inexistente.',
+  })
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   async update(
@@ -110,7 +131,11 @@ export class UserController {
 
   @ApiOperation({ summary: 'Remove um usuário do sistema' })
   @ApiOkResponse({ description: 'usuário removido com sucesso.' })
-  @ApiBearerAuth()
+  @ApiCookieAuth()
+  @ApiUnauthorizedResponse({ description: 'Acesso negado.' })
+  @ApiNotFoundResponse({
+    description: 'Impossível remover: Usuário não localizado.',
+  })
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
