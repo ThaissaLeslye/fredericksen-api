@@ -2,9 +2,9 @@ name: CI/CD - Fredericksen Home
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main, develop]
 
 jobs:
   quality-check:
@@ -37,8 +37,8 @@ jobs:
 
   deploy:
     runs-on: self-hosted
-    needs: [quality-check] 
-    if: github.event_name == 'push'
+    needs: [quality-check]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
 
