@@ -35,6 +35,9 @@ jobs:
       - name: Unit Tests
         run: npm run test
 
+      - name: Validate Docker Production Build
+        run: docker build --no-cache --target production -t fredericksen-api:test .
+
       - name: Start Containers and Validate Healthcheck
         run: |
           docker compose up -d --build api

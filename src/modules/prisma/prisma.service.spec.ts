@@ -81,12 +81,9 @@ describe('PrismaService', () => {
 
     const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
 
-    try {
-      await service.client.profile.create({
-        data: rawProfileData,
-      });
-      // eslint-disable-next-line no-empty
-    } catch {}
+    await service.client.profile
+      .create({ data: rawProfileData })
+      .catch(() => {});
 
     expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.medications);
@@ -101,12 +98,9 @@ describe('PrismaService', () => {
 
     const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
 
-    try {
-      await service.client.profile.update({
-        where: { userId: 'user-uuid' },
-        data: updateData,
-      });
-    } catch {}
+    await service.client.profile
+      .update({ where: { userId: 'user-uuid' }, data: updateData })
+      .catch(() => {});
 
     expect(encryptSpy).toHaveBeenCalledWith(updateData.medications);
     expect(encryptSpy).toHaveBeenCalledWith(updateData.allergies);
