@@ -48,7 +48,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 2,
     });
 
     const frontendUrl = this.configService.getOrThrow<string>(
