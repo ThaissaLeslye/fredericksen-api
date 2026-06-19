@@ -26,7 +26,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         signOptions: {
           expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || '7d') as
             | number
-            | '7d',
+            | '2h',
         },
       }),
     }),
