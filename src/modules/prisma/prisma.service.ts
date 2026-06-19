@@ -13,6 +13,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { extendPrismaClient } from './prisma.extension';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PrismaService
@@ -21,9 +22,12 @@ export class PrismaService
 {
   private _extendedClient: ReturnType<typeof extendPrismaClient>;
 
-  constructor(private readonly encryptionService: EncryptionService) {
+  constructor(
+    private readonly encryptionService: EncryptionService,
+    private readonly configService: ConfigService,
+  ) {
     const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: configService.getOrThrow<string>('DATABASE_URL'),
     });
 
     const adapter = new PrismaPg(pool);
