@@ -1,14 +1,20 @@
 import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiOkResponse } from '@nestjs/swagger';
 
 import type { RequestWithUser } from './auth.interfaces';
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({
     summary: 'Inicia o processo de login via Google OAuth2',
@@ -35,7 +41,8 @@ export class AuthController {
 
     const { access_token } = await this.authService.generateJwt(user);
 
-    const isProduction = process.env.NODE_ENV?.trim() === 'production';
+    const isProduction =
+      this.configService.get<string>('NODE_ENV')?.trim() === 'production';
 
     res.cookie('access_token', access_token, {
       httpOnly: true,
@@ -44,6 +51,13 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24,
     });
 
-    return res.redirect('http://localhost:4200/home');
+    const frontendUrl = this.configService.getOrThrow<string>(
+      'FREDERICKSEN_WEB_URL',
+    );
+    const redirectUrl = frontendUrl.endsWith('/')
+      ? `${frontendUrl}home`
+      : `${frontendUrl}/home`;
+
+    return res.redirect(redirectUrl);
   }
 }

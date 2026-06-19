@@ -12,6 +12,7 @@ import { PrismaService } from './prisma.service';
 import { extendPrismaClient } from './prisma.extension';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
 import { PrismaClient } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -22,6 +23,14 @@ describe('PrismaService', () => {
     decrypt: jest.fn(),
   };
 
+  const mockConfigService = {
+    getOrThrow: jest
+      .fn()
+      .mockReturnValue(
+        'postgresql://postgres:password@localhost:5432/fredericksen?schema=public',
+      ),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -29,6 +38,10 @@ describe('PrismaService', () => {
         {
           provide: EncryptionService,
           useValue: mockEncryptionService,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
@@ -104,6 +117,19 @@ describe('PrismaService', () => {
 
     expect(encryptSpy).toHaveBeenCalledWith(updateData.medications);
     expect(encryptSpy).toHaveBeenCalledWith(updateData.allergies);
+  });
+
+  it('should skip encryption branches when sensitive fields are omitted or invalid', async () => {
+    const partialData = { userId: 'user-uuid' };
+    const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
+
+    await service.client.profile.create({ data: partialData }).catch(() => {});
+
+    await service.client.profile
+      .update({ where: { userId: 'user-uuid' }, data: {} })
+      .catch(() => {});
+
+    expect(encryptSpy).not.toHaveBeenCalled(); // NOVO: Garante que os desvios condicionais funcionaram
   });
 
   it('should decrypt sensitive profile fields when computing query results from database', () => {

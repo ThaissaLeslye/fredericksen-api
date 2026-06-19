@@ -33,18 +33,29 @@ describe('EncryptionService', () => {
     service = module.get<EncryptionService>(EncryptionService);
   });
 
-  it('should encrypt and decrypt a value correctly (Round-trip)', () => {
+  it('should encrypt and decrypt a value correctly using pure AES-GCM (Round-trip)', () => {
     const originalText = 'Insulina 10mg';
 
     const encrypted = service.encrypt(originalText);
     const decrypted = service.decrypt(encrypted);
 
-    expect(encrypted).toContain(':');
+    expect(encrypted).toMatch(/^v2:gcm:/);
     expect(decrypted).toBe(originalText);
   });
 
-  it('should throw InternalServerErrorException when payload is missing the separation colon', () => {
-    const invalidData = 'textoSemSeparador';
+  it('should throw InternalServerErrorException when a GCM authentication tag is tampered with', () => {
+    const encrypted = service.encrypt('Dados Médicos Confidenciais');
+
+    const tamperedEncrypted =
+      encrypted.substring(0, encrypted.length - 1) + 'X';
+
+    expect(() => service.decrypt(tamperedEncrypted)).toThrow(
+      InternalServerErrorException,
+    );
+  });
+
+  it('should throw InternalServerErrorException when payload structure is malformed', () => {
+    const invalidData = 'v2:gcm:textoSemOsDelimitadoresCorretos';
 
     expect(() => service.decrypt(invalidData)).toThrow(
       InternalServerErrorException,
@@ -69,8 +80,9 @@ describe('EncryptionService', () => {
     );
   });
 
-  it('should throw InternalServerErrorException when cryptographic decryption engine fails', () => {
-    const corruptPayloadWithValidFormat = '1234:abcdef';
+  it('should throw InternalServerErrorException when cryptographic decryption engine fails with malformed hex data', () => {
+    const corruptPayloadWithValidFormat =
+      'v2:gcm:badiv:badtag:badencryptedtext';
 
     expect(() => service.decrypt(corruptPayloadWithValidFormat)).toThrow(
       InternalServerErrorException,
