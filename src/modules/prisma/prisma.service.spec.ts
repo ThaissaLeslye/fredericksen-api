@@ -12,6 +12,7 @@ import { PrismaService } from './prisma.service';
 import { extendPrismaClient } from './prisma.extension';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
 import { PrismaClient } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -22,6 +23,14 @@ describe('PrismaService', () => {
     decrypt: jest.fn(),
   };
 
+  const mockConfigService = {
+    getOrThrow: jest
+      .fn()
+      .mockReturnValue(
+        'postgresql://postgres:password@localhost:5432/fredericksen?schema=public',
+      ),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -29,6 +38,10 @@ describe('PrismaService', () => {
         {
           provide: EncryptionService,
           useValue: mockEncryptionService,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
