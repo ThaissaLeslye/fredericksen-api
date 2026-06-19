@@ -21,9 +21,8 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   JWT_SECRET!: string;
 
-  @IsString()
   @IsNotEmpty()
-  JWT_EXPIRES_IN!: string;
+  JWT_EXPIRES_IN!: number;
 
   @IsString()
   @IsNotEmpty()
