@@ -13,8 +13,9 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 @Injectable()
 export class EncryptionService {
-  private readonly algorithm = 'aes-256-ctr';
+  private readonly algorithm = 'aes-256-gcm';
   private readonly key: Buffer;
+  private readonly PREFIX_GCM = 'v2:gcm:';
 
   constructor(private readonly configService: ConfigService) {
     const b64Key = this.configService.getOrThrow<string>('ENCRYPTION_KEY');
@@ -28,7 +29,7 @@ export class EncryptionService {
   }
 
   encrypt(text: string): string {
-    const iv = randomBytes(16);
+    const iv = randomBytes(12);
     const cipher = createCipheriv(this.algorithm, this.key, iv);
 
     const encrypted = Buffer.concat([
@@ -36,33 +37,44 @@ export class EncryptionService {
       cipher.final(),
     ]);
 
-    return iv.toString('hex') + ':' + encrypted.toString('hex');
+    const tag = cipher.getAuthTag();
+
+    return `${this.PREFIX_GCM}${iv.toString('hex')}:${tag.toString('hex')}:${encrypted.toString('hex')}`;
   }
 
   decrypt(encryptedData: string): string {
-    const parts = encryptedData.split(':');
+    return this.decryptGcm(encryptedData);
+  }
 
-    if (parts.length !== 2) {
+  private decryptGcm(encryptedData: string): string {
+    const dataWithoutPrefix = encryptedData.replace(this.PREFIX_GCM, '');
+    const parts = dataWithoutPrefix.split(':');
+
+    if (parts.length !== 3) {
       throw new InternalServerErrorException(
-        'Falha de Integridade: O dado criptografado está em um formato inválido.',
+        'Falha de Integridade: Payload GCM corrompido.',
       );
     }
 
     try {
-      const [ivHex, encryptedTextHex] = parts;
-      const iv = Buffer.from(ivHex, 'hex');
-      const encryptedBuffer = Buffer.from(encryptedTextHex, 'hex');
+      const [ivHex, tagHex, encryptedTextHex] = parts;
+      const decipher = createDecipheriv(
+        this.algorithm,
+        this.key,
+        Buffer.from(ivHex, 'hex'),
+      );
 
-      const decipher = createDecipheriv(this.algorithm, this.key, iv);
+      decipher.setAuthTag(Buffer.from(tagHex, 'hex'));
+
       const decrypted = Buffer.concat([
-        decipher.update(encryptedBuffer),
+        decipher.update(Buffer.from(encryptedTextHex, 'hex')),
         decipher.final(),
       ]);
 
       return decrypted.toString('utf-8');
     } catch {
       throw new InternalServerErrorException(
-        'Erro na decriptação: Verifique a integridade da chave e dos dados.',
+        'Erro de Autenticidade: O dado foi adulterado ou a chave é inválida.',
       );
     }
   }
