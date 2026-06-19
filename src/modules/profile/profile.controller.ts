@@ -43,17 +43,19 @@ export class ProfileController {
   })
   @Get('me')
   async findMe(@CurrentUser() user: ActiveUser) {
-    const { user: dbUser, ...profile } = await this.profileService.findOne(
-      user.id,
-    );
+    const profileData = await this.profileService.findOne(user.id);
 
     return {
-      id: dbUser.id,
-      name: dbUser.name,
-      email: dbUser.email,
-      photoUrl: dbUser.photoUrl,
-      profile,
-    };
+      id: profileData.user.id,
+      name: profileData.user.name,
+      email: profileData.user.email,
+      photoUrl: profileData.user.photoUrl,
+      profile: {
+        id: profileData.id,
+        medications: profileData.medications,
+        allergies: profileData.allergies,
+        bloodType: profileData.bloodType,
+      },
   }
 
   @ApiOperation({ summary: 'Atualiza o perfil do usuário logado' })
