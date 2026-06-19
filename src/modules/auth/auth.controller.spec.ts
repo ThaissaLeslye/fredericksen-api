@@ -9,6 +9,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interfaces';
 import { User } from '@prisma/client';
@@ -16,6 +17,7 @@ import { User } from '@prisma/client';
 describe('AuthController', () => {
   let controller: AuthController;
   let authService: AuthService;
+  let configService: ConfigService;
 
   const mockUser = {
     id: 'user-uuid-123',
@@ -52,11 +54,19 @@ describe('AuthController', () => {
               .mockResolvedValue({ access_token: 'fake-jwt' }),
           },
         },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: jest.fn().mockReturnValue('production'),
+            getOrThrow: jest.fn().mockReturnValue('https://rick.tllo.app/'),
+          },
+        },
       ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
     authService = module.get<AuthService>(AuthService);
+    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
@@ -78,13 +88,14 @@ describe('AuthController', () => {
         'fake-jwt',
         expect.objectContaining({
           httpOnly: true,
+          secure: true,
           sameSite: 'lax',
-          maxAge: 86400000, // 24h in ms
+          maxAge: 86400000,
         }),
       );
 
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        'http://localhost:4200/home',
+        'https://rick.tllo.app/home',
       );
     });
   });
