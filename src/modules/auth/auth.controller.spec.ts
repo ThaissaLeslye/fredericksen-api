@@ -10,6 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interfaces';
 import { User } from '@prisma/client';
@@ -43,6 +44,14 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        ThrottlerModule.forRoot([
+          {
+            ttl: 60000,
+            limit: 10,
+          },
+        ]),
+      ],
       controllers: [AuthController],
       providers: [
         {
