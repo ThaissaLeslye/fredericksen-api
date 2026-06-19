@@ -56,6 +56,7 @@ export class ProfileController {
         allergies: profileData.allergies,
         bloodType: profileData.bloodType,
       },
+    };
   }
 
   @ApiOperation({ summary: 'Atualiza o perfil do usuário logado' })
