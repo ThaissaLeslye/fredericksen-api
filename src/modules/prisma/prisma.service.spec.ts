@@ -119,6 +119,19 @@ describe('PrismaService', () => {
     expect(encryptSpy).toHaveBeenCalledWith(updateData.allergies);
   });
 
+  it('should skip encryption branches when sensitive fields are omitted or invalid', async () => {
+    const partialData = { userId: 'user-uuid' };
+    const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
+
+    await service.client.profile.create({ data: partialData }).catch(() => {});
+
+    await service.client.profile
+      .update({ where: { userId: 'user-uuid' }, data: {} })
+      .catch(() => {});
+
+    expect(encryptSpy).not.toHaveBeenCalled(); // NOVO: Garante que os desvios condicionais funcionaram
+  });
+
   it('should decrypt sensitive profile fields when computing query results from database', () => {
     (encryptionService.decrypt as jest.Mock).mockReturnValue(
       'decrypted_mock_value',
