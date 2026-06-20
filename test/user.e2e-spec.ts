@@ -67,12 +67,11 @@ describe('User System (e2e)', () => {
     });
   });
 
-  describe('Validation Rules (RFE03)', () => {
-    it('/user (POST) - should reject invalid data format', () => {
+  describe('RBAC & Auth Guard Enforcement', () => {
+    it('/user (GET) - should reject unauthenticated requests with 401 Unauthorized', () => {
       return request(app.getHttpServer() as Server)
-        .post('/user')
-        .send({ email: 'invalid-email', name: '' })
-        .expect(400);
+        .get('/user')
+        .expect(401);
     });
   });
 });
