@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -14,14 +13,12 @@ import {
 import {
   ApiTags,
   ApiOkResponse,
-  ApiCreatedResponse,
   ApiCookieAuth,
   ApiOperation,
   ApiUnauthorizedResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -33,17 +30,6 @@ import type { ActiveUser } from '../auth/auth.interfaces';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @ApiOperation({ summary: 'Cria um novo usuário' })
-  @ApiCreatedResponse({
-    description: 'Usuário criado com sucesso.',
-    type: UserEntity,
-  })
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
-    const user = await this.userService.create(createUserDto);
-    return new UserEntity(user);
-  }
 
   @ApiOperation({
     summary: 'Lista todos os usuários (Apenas Admin/Interno)',

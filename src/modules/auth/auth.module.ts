@@ -24,9 +24,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: (configService.get<string>('JWT_EXPIRES_IN') || '7d') as
-            | number
-            | '7d',
+          expiresIn: configService.getOrThrow<number>('JWT_EXPIRES_IN'),
         },
       }),
     }),

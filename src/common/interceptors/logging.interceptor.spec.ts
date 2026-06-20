@@ -1,12 +1,16 @@
-import { ExecutionContext, CallHandler } from '@nestjs/common';
+import {
+  ExecutionContext,
+  CallHandler,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { LoggingInterceptor } from './logging.interceptor';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { Request, Response } from 'express';
 
 describe('LoggingInterceptor', () => {
   let interceptor: LoggingInterceptor;
   let mockExecutionContext: Partial<ExecutionContext>;
-  let mockCallHandler: Partial<CallHandler>;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
 
@@ -30,16 +34,13 @@ describe('LoggingInterceptor', () => {
     };
   });
 
-  it('deve interceptar a requisição, processar o fluxo e registrar logs informativos para status 2xx', (done) => {
-    mockCallHandler = {
+  it('should intercept request, process flow and log informative messages for 2xx status', (done) => {
+    const mockCallHandler: CallHandler = {
       handle: jest.fn().mockReturnValue(of('response_data')),
     };
 
     interceptor
-      .intercept(
-        mockExecutionContext as ExecutionContext,
-        mockCallHandler as CallHandler,
-      )
+      .intercept(mockExecutionContext as ExecutionContext, mockCallHandler)
       .subscribe({
         next: (result) => {
           expect(result).toBe('response_data');
@@ -49,39 +50,48 @@ describe('LoggingInterceptor', () => {
       });
   });
 
-  it('deve registrar mensagens de alerta (warn) quando o status code for um erro de cliente (4xx)', (done) => {
-    mockResponse.statusCode = 400;
-    mockCallHandler = {
-      handle: jest.fn().mockReturnValue(of('bad_request_payload')),
+  it('should log warning messages when an HttpException occurs (4xx client error)', (done) => {
+    const mockCallHandler: CallHandler = {
+      handle: jest
+        .fn()
+        .mockReturnValue(
+          throwError(
+            () => new HttpException('Bad Request', HttpStatus.BAD_REQUEST),
+          ),
+        ),
     };
 
     interceptor
-      .intercept(
-        mockExecutionContext as ExecutionContext,
-        mockCallHandler as CallHandler,
-      )
+      .intercept(mockExecutionContext as ExecutionContext, mockCallHandler)
       .subscribe({
         next: () => {
-          expect(mockResponse.statusCode).toBe(400);
+          done.fail('Should have thrown an error');
+        },
+        error: (err: unknown) => {
+          expect(err).toBeInstanceOf(HttpException);
+          expect((err as HttpException).getStatus()).toBe(400);
           done();
         },
       });
   });
 
-  it('deve registrar erros críticos (error) quando o status code for uma falha interna do servidor (5xx)', (done) => {
-    mockResponse.statusCode = 500;
-    mockCallHandler = {
-      handle: jest.fn().mockReturnValue(of('internal_server_failure')),
+  it('should log critical error messages when a generic server failure occurs (5xx)', (done) => {
+    const mockCallHandler: CallHandler = {
+      handle: jest
+        .fn()
+        .mockReturnValue(
+          throwError(() => new Error('Database connection failed')),
+        ),
     };
 
     interceptor
-      .intercept(
-        mockExecutionContext as ExecutionContext,
-        mockCallHandler as CallHandler,
-      )
+      .intercept(mockExecutionContext as ExecutionContext, mockCallHandler)
       .subscribe({
         next: () => {
-          expect(mockResponse.statusCode).toBe(500);
+          done.fail('Should have thrown an error');
+        },
+        error: (err: unknown) => {
+          expect(err).toBeInstanceOf(Error);
           done();
         },
       });

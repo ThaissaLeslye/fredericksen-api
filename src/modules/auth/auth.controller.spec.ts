@@ -67,7 +67,13 @@ describe('AuthController', () => {
           provide: ConfigService,
           useValue: {
             get: jest.fn().mockReturnValue('production'),
-            getOrThrow: jest.fn().mockReturnValue('https://rick.tllo.app/'),
+            getOrThrow: jest.fn((key: string) => {
+              const mockConfig: Record<string, string | number> = {
+                FREDERICKSEN_WEB_URL: 'https://rick.tllo.app/',
+                JWT_EXPIRES_IN: 7200,
+              };
+              return mockConfig[key];
+            }),
           },
         },
       ],
@@ -91,7 +97,6 @@ describe('AuthController', () => {
       );
 
       expect(authService.generateJwt).toHaveBeenCalledWith(mockUser);
-
       expect(mockResponse.cookie).toHaveBeenCalledWith(
         'access_token',
         'fake-jwt',
@@ -99,7 +104,7 @@ describe('AuthController', () => {
           httpOnly: true,
           secure: true,
           sameSite: 'lax',
-          maxAge: 86400000,
+          maxAge: 7200000,
         }),
       );
 

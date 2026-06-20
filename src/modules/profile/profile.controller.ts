@@ -1,7 +1,6 @@
-import { Controller, Get, Body, Patch, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import type { RequestWithUser } from './profile.interfaces';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   ApiOkResponse,
@@ -11,6 +10,8 @@ import {
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { ProfileEntity } from './entities/profile.entity';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { ActiveUser } from '../auth/auth.interfaces';
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
@@ -32,9 +33,8 @@ export class ProfileController {
     type: ProfileEntity,
   })
   @Get()
-  findOne(@Req() req: RequestWithUser) {
-    const userId = req.user.id;
-    return this.profileService.findOne(userId);
+  findOne(@CurrentUser() user: ActiveUser) {
+    return this.profileService.findOne(user.id);
   }
 
   @ApiOperation({ summary: 'Obtém o perfil do usuário logado (alias /me)' })
@@ -42,15 +42,20 @@ export class ProfileController {
     description: 'Retorna os dados do usuário logado, com o perfil aninhado.',
   })
   @Get('me')
-  async findMe(@Req() req: RequestWithUser) {
-    const { user, ...profile } = await this.profileService.findOne(req.user.id);
+  async findMe(@CurrentUser() user: ActiveUser) {
+    const profileData = await this.profileService.findOne(user.id);
 
     return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      photoUrl: user.photoUrl,
-      profile,
+      id: profileData.user.id,
+      name: profileData.user.name,
+      email: profileData.user.email,
+      photoUrl: profileData.user.photoUrl,
+      profile: {
+        id: profileData.id,
+        medications: profileData.medications,
+        allergies: profileData.allergies,
+        bloodType: profileData.bloodType,
+      },
     };
   }
 
@@ -61,10 +66,9 @@ export class ProfileController {
   })
   @Patch()
   update(
-    @Req() req: RequestWithUser,
+    @CurrentUser() user: ActiveUser,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
-    const userId = req.user.id;
-    return this.profileService.update(userId, updateProfileDto);
+    return this.profileService.update(user.id, updateProfileDto);
   }
 }

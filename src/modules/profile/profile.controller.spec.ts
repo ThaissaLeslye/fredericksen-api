@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ActiveUser } from '../auth/auth.interfaces';
 
 describe('ProfileController', () => {
   let controller: ProfileController;
@@ -10,6 +11,13 @@ describe('ProfileController', () => {
   const mockProfileService = {
     findOne: jest.fn(),
     update: jest.fn(),
+  };
+
+  const mockActiveUser: ActiveUser = {
+    id: 'user-uuid-123',
+    name: 'Thaissa',
+    email: 't@test.com',
+    photoUrl: null,
   };
 
   beforeEach(async () => {
@@ -42,65 +50,59 @@ describe('ProfileController', () => {
 
       mockProfileService.findOne.mockResolvedValue(mockProfile);
 
-      const mockReq = { user: mockUser };
+      const result = await controller.findOne(mockActiveUser);
 
-      const result = await controller.findOne(mockReq as any);
-
-      expect(service.findOne).toHaveBeenCalledWith(mockUser.id);
+      expect(service.findOne).toHaveBeenCalledWith(mockActiveUser.id);
       expect(result).toEqual(mockProfile);
     });
   });
 
   describe('findMe', () => {
     it('deve retornar os dados do usuário combinados com o perfil plano', async () => {
-      const mockUserObj = {
-        id: 'user-uuid-123',
-        name: 'Thaissa',
-        email: 't@test.com',
-        photoUrl: null,
-      };
       const mockProfileWithUser = {
         id: 'profile-uuid',
+        userId: 'user-uuid-123',
         medications: 'Quetiapina',
+        allergies: 'Nenhuma',
         bloodType: 'O_POSITIVE',
-        user: mockUserObj,
+        updatedAt: new Date(),
+        user: mockActiveUser,
       };
 
       mockProfileService.findOne.mockResolvedValue(mockProfileWithUser);
-      const mockReq = { user: { id: 'user-uuid-123' } };
+      const result = await controller.findMe(mockActiveUser);
 
-      const result = await controller.findMe(mockReq as any);
-
-      expect(service.findOne).toHaveBeenCalledWith('user-uuid-123');
+      expect(service.findOne).toHaveBeenCalledWith(mockActiveUser.id);
       expect(result).toEqual({
-        id: mockUserObj.id,
-        name: mockUserObj.name,
-        email: mockUserObj.email,
-        photoUrl: mockUserObj.photoUrl,
+        id: mockActiveUser.id,
+        name: mockActiveUser.name,
+        email: mockActiveUser.email,
+        photoUrl: mockActiveUser.photoUrl,
         profile: {
           id: 'profile-uuid',
           medications: 'Quetiapina',
+          allergies: 'Nenhuma',
           bloodType: 'O_POSITIVE',
         },
       });
+
+      expect(result.profile).not.toHaveProperty('userId');
+      expect(result.profile).not.toHaveProperty('updatedAt');
     });
   });
   describe('update', () => {
     it('deve chamar o service.update com o ID correto e os dados do DTO', async () => {
-      const userId = 'user-uuid-123';
       const updateDto: UpdateProfileDto = {
         medications: 'Quetiapina',
         allergies: 'Nenhum',
       };
 
-      const mockUpdatedProfile = { userId, ...updateDto };
+      const mockUpdatedProfile = { userId: mockActiveUser.id, ...updateDto };
       mockProfileService.update.mockResolvedValue(mockUpdatedProfile);
 
-      const mockReq = { user: { id: userId } };
+      const result = await controller.update(mockActiveUser, updateDto);
 
-      const result = await controller.update(mockReq as any, updateDto);
-
-      expect(service.update).toHaveBeenCalledWith(userId, updateDto);
+      expect(service.update).toHaveBeenCalledWith(mockActiveUser.id, updateDto);
       expect(result).toEqual(mockUpdatedProfile);
     });
   });

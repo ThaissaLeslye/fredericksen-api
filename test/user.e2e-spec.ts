@@ -39,40 +39,11 @@ describe('User System (e2e)', () => {
     await app.close();
   });
 
-  describe('User Creation & Profile Initialization', () => {
-    it('/user (POST) - should create a user and automatically link a profile', async () => {
-      const newUser = {
-        email: 'e2e-test@fredericksen.com',
-        name: 'E2E Tester',
-        googleId: 'google-oauth2|99999',
-      };
-
-      const response = await request(app.getHttpServer() as Server)
-        .post('/user')
-        .send(newUser)
-        .expect(201);
-
-      const responseBody = response.body as { id: string; email: string };
-
-      expect(responseBody).toHaveProperty('id');
-      expect(responseBody.email).toBe(newUser.email);
-      expect(responseBody).not.toHaveProperty('googleId');
-
-      const userInDb = await prisma.user.findUnique({
-        where: { email: newUser.email },
-        include: { profile: true },
-      });
-
-      expect(userInDb?.profile).toBeDefined();
-    });
-  });
-
-  describe('Validation Rules (RFE03)', () => {
-    it('/user (POST) - should reject invalid data format', () => {
+  describe('RBAC & Auth Guard Enforcement', () => {
+    it('/user (GET) - should reject unauthenticated requests with 401 Unauthorized', () => {
       return request(app.getHttpServer() as Server)
-        .post('/user')
-        .send({ email: 'invalid-email', name: '' })
-        .expect(400);
+        .get('/user')
+        .expect(401);
     });
   });
 });

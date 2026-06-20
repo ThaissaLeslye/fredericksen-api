@@ -37,6 +37,9 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req: RequestWithUser, @Res() res: Response) {
+    const jwtExpiresInSeconds =
+      this.configService.getOrThrow<number>('JWT_EXPIRES_IN');
+
     const user = await this.authService.validateGoogleUser(req.user);
 
     const { access_token } = await this.authService.generateJwt(user);
@@ -48,7 +51,7 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: jwtExpiresInSeconds * 1000,
     });
 
     const frontendUrl = this.configService.getOrThrow<string>(
