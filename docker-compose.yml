@@ -1,7 +1,8 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: meu-banco-pg
+    container_name: fredericksen-db-prd
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -27,7 +28,8 @@ services:
     build:
       context: .
       target: production
-    container_name: minha-api-nestjs
+    container_name: fredericksen-api-prd
+    restart: unless-stopped
     env_file:
       - .env
     environment:
