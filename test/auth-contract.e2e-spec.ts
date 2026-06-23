@@ -37,37 +37,24 @@ describe('Cross-Repo Authentication Contract (Vue 3 <-> NestJS)', () => {
     });
   });
 
-  it('should issue a cookie that perfectly matches the frontend apiClient expectation', async () => {
+  it('should authorize requests exclusively when the frontend supplies credentials under the access_token cookie key', async () => {
     const payload = { sub: seedUser.id, email: seedUser.email };
-    const validToken = jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET,
-    });
+    const validToken = jwtService.sign(payload);
 
-    const response = await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .get('/profile/me')
       .set('Cookie', [`access_token=${validToken}`])
       .expect(200);
 
-    const rawCookieHeader = response.headers['set-cookie'];
-    const cookieArray = Array.isArray(rawCookieHeader)
-      ? rawCookieHeader
-      : rawCookieHeader
-        ? [rawCookieHeader]
-        : [];
-
-    expect(cookieArray.length).toBeGreaterThan(0);
-
-    const hasAccessTokenCookie = cookieArray.some((cookie) =>
-      cookie.startsWith('access_token='),
-    );
-    expect(hasAccessTokenCookie).toBe(true);
+    await request(app.getHttpServer())
+      .get('/profile/me')
+      .set('Cookie', [`invalid_contract_key=${validToken}`])
+      .expect(401);
   });
 
   it('should return a /user/me payload schema that complies with the frontend store model', async () => {
     const payload = { sub: seedUser.id, email: seedUser.email };
-    const validToken = jwtService.sign(payload, {
-      secret: process.env.JWT_SECRET,
-    });
+    const validToken = jwtService.sign(payload);
 
     const response = await request(app.getHttpServer())
       .get('/user/me')
