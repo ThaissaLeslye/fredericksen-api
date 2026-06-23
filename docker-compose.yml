@@ -1,7 +1,8 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: meu-banco-pg
+    container_name: fredericksen-db-prd
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -13,6 +14,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          memory: 256M
     networks:
       - fredericksen-net
 
@@ -20,7 +28,8 @@ services:
     build:
       context: .
       target: production
-    container_name: minha-api-nestjs
+    container_name: fredericksen-api-prd
+    restart: unless-stopped
     env_file:
       - .env
     environment:
@@ -36,6 +45,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 128M
     healthcheck:
       test:
         [

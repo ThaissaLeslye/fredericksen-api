@@ -26,7 +26,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'documentation'),
-      serveRoot: '/mvp1/compodoc',
+      serveRoot: '/compodoc',
     }),
     ConfigModule.forRoot({
       validate,

@@ -62,9 +62,7 @@ async function bootstrap() {
 
   await app.listen(portNumber, '0.0.0.0');
 
-  bootstrapLogger.log(
-    `Application is running on: https://rick-api.tllo.app/mvp1`,
-  );
+  bootstrapLogger.log(`Application is running on: https://rick-api.tllo.app`);
 }
 bootstrap().catch((err) => {
   console.error('Erro crítico durante a inicialização da aplicação:', err);
