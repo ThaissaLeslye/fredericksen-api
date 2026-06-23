@@ -25,7 +25,7 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
       useFactory: (configService: ConfigService) => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.getOrThrow<number>('JWT_EXPIRES_IN'),
+          expiresIn: Number(configService.getOrThrow('JWT_EXPIRES_IN')),
         },
       }),
     }),
