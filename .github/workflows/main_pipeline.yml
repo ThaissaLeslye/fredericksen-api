@@ -44,7 +44,7 @@ jobs:
 
           echo "Aguardando inicialização dos containers e validação do Healthcheck..."
           for i in {1..12}; do
-            STATUS=$(docker inspect --format='{{.State.Health.Status}}' minha-api-nestjs 2>/dev/null || echo "starting")
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' fredericksen-api-prd 2>/dev/null || echo "starting")
             echo "Status atual do container: $STATUS"
             if [ "$STATUS" = "healthy" ]; then
               echo "Sucesso: O container foi validado e está totalmente saudável!"
@@ -57,7 +57,7 @@ jobs:
           echo "=== Logs da API ==="
           docker compose logs api
           echo "=== Estado do Docker ==="
-          docker inspect minha-api-nestjs
+          docker inspect fredericksen-api-prd
           exit 1
 
       - name: Stop Containers
