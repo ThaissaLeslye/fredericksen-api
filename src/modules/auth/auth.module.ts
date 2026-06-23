@@ -7,6 +7,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 @Module({
   imports: [
@@ -21,16 +22,24 @@ import { ThrottlerModule } from '@nestjs/throttler';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.getOrThrow<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.getOrThrow<number>('JWT_EXPIRES_IN'),
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const rawExpiresIn = configService.getOrThrow('JWT_EXPIRES_IN');
+
+        const sanitizedExpiresIn =
+          parseInt(String(rawExpiresIn).replace(/\D/g, ''), 10) || 7200;
+
+        return {
+          secret: configService.getOrThrow<string>('JWT_SECRET'),
+          signOptions: {
+            expiresIn: sanitizedExpiresIn,
+          },
+        };
+      },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy],
+  providers: [AuthService, GoogleStrategy, JwtStrategy, GoogleAuthGuard],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -1,10 +1,10 @@
 import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiOkResponse } from '@nestjs/swagger';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 import type { RequestWithUser } from './auth.interfaces';
 
@@ -23,7 +23,7 @@ export class AuthController {
     description: 'Redirecionamento para autenticação Google iniciado.',
   })
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   async googleAuth() {}
 
   @ApiOperation({
@@ -35,7 +35,7 @@ export class AuthController {
       'Autenticação processada com sucesso, redirecionamento para aplicação.',
   })
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req: RequestWithUser, @Res() res: Response) {
     const jwtExpiresInSeconds =
       this.configService.getOrThrow<number>('JWT_EXPIRES_IN');

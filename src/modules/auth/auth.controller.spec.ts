@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interfaces';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { User } from '@prisma/client';
 
 describe('AuthController', () => {
@@ -76,6 +77,7 @@ describe('AuthController', () => {
             }),
           },
         },
+        GoogleAuthGuard,
       ],
     }).compile();
 
