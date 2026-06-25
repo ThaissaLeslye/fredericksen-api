@@ -8,7 +8,6 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
@@ -18,7 +17,6 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import type { RequestWithUser } from './auth.interfaces';
 
 @Controller('auth')
-@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,

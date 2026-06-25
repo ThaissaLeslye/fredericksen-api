@@ -9,7 +9,8 @@
 
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './modules/user/user.module';
@@ -24,6 +25,12 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'documentation'),
       serveRoot: '/compodoc',
@@ -44,6 +51,10 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
