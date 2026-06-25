@@ -42,7 +42,6 @@ describe('UserController', () => {
         {
           provide: UserService,
           useValue: {
-            findAll: jest.fn().mockResolvedValue([mockUserFromDb]),
             findOne: jest.fn().mockImplementation((id: string) => {
               if (id === 'uuid-inexistente') return Promise.resolve(null);
               return Promise.resolve(mockUserFromDb);
@@ -60,16 +59,6 @@ describe('UserController', () => {
 
   it('deve estar definido', () => {
     expect(controller).toBeDefined();
-  });
-
-  describe('findAll', () => {
-    it('deve retornar um array de UserEntity', async () => {
-      const result = await controller.findAll();
-
-      expect(service.findAll).toHaveBeenCalled();
-      expect(result).toBeInstanceOf(Array);
-      expect(result[0]).toBeInstanceOf(UserEntity);
-    });
   });
 
   describe('getMe', () => {

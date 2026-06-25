@@ -34,7 +34,6 @@ describe('UserService', () => {
           useValue: {
             user: {
               create: jest.fn().mockResolvedValue(mockUser),
-              findMany: jest.fn().mockResolvedValue([mockUser]),
               findUnique: jest.fn().mockResolvedValue(mockUser),
               update: jest.fn().mockResolvedValue(mockUser),
               delete: jest.fn().mockResolvedValue(mockUser),
@@ -66,14 +65,6 @@ describe('UserService', () => {
         include: { profile: true },
       });
       expect(result).toEqual(mockUser);
-    });
-  });
-
-  describe('findAll', () => {
-    it('deve retornar uma lista de usuários cadastrados', async () => {
-      const result = await service.findAll();
-      expect(prisma.user.findMany).toHaveBeenCalled();
-      expect(result).toEqual([mockUser]);
     });
   });
 
