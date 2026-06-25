@@ -58,8 +58,8 @@ export class AuthController {
       'FREDERICKSEN_WEB_URL',
     );
     const redirectUrl = frontendUrl.endsWith('/')
-      ? `${frontendUrl}home`
-      : `${frontendUrl}/home`;
+      ? frontendUrl
+      : `${frontendUrl}/`;
 
     return res.redirect(redirectUrl);
   }
