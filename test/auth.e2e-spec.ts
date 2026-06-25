@@ -35,6 +35,9 @@ describe('Auth (E2E)', () => {
         email: 'dev_test@example.com',
         name: 'Deva Teste',
         googleId: 'google-123',
+        profile: {
+          create: {},
+        },
       },
     });
   });

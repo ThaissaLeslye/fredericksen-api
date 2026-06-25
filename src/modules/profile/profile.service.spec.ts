@@ -2,16 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ProfileService } from './profile.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
 
 describe('ProfileService', () => {
   let service: ProfileService;
   let prisma: PrismaService;
 
   const mockPrismaService = {
-    profile: {
-      findUnique: jest.fn(),
-      update: jest.fn(),
+    client: {
+      profile: {
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
     },
   };
 
@@ -34,6 +35,40 @@ describe('ProfileService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('findOne', () => {
+    it('deve buscar um perfil de usuário pelo ID com sucesso', async () => {
+      const userId = 'user-uuid-123';
+      const expectedProfile = {
+        userId,
+        medications: 'Lítio',
+        allergies: 'Poeira',
+      };
+
+      mockPrismaService.client.profile.findUnique.mockResolvedValue(
+        expectedProfile,
+      );
+
+      const result = await service.findOne(userId);
+
+      expect(prisma.client.profile.findUnique).toHaveBeenCalledWith({
+        where: { userId },
+        include: { user: true },
+      });
+      expect(result).toEqual(expectedProfile);
+    });
+
+    it('deve lançar NotFoundException quando o perfil não for encontrado no banco de dados', async () => {
+      const userId = 'user-uuid-inexistente';
+      mockPrismaService.client.profile.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne(userId)).rejects.toThrow(NotFoundException);
+      expect(prisma.client.profile.findUnique).toHaveBeenCalledWith({
+        where: { userId },
+        include: { user: true },
+      });
+    });
+  });
+
   describe('update', () => {
     it('deve atualizar o perfil com sucesso e mapear os campos corretamente', async () => {
       const userId = 'user-uuid';
@@ -48,11 +83,12 @@ describe('ProfileService', () => {
         allergies: 'Poeira',
       };
 
-      mockPrismaService.profile.update.mockResolvedValue(expectedResult);
+      mockPrismaService.client.profile.findUnique.mockResolvedValue({ userId });
+      mockPrismaService.client.profile.update.mockResolvedValue(expectedResult);
 
       const result = await service.update(userId, updateDto);
 
-      expect(prisma.profile.update).toHaveBeenCalledWith({
+      expect(prisma.client.profile.update).toHaveBeenCalledWith({
         where: { userId },
         data: {
           medications: updateDto.medications,
@@ -61,21 +97,6 @@ describe('ProfileService', () => {
         },
       });
       expect(result).toEqual(expectedResult);
-    });
-
-    it('deve lançar NotFoundException quando o Prisma retornar erro P2025', async () => {
-      const userId = 'id-inexistente';
-
-      const prismaError = new Prisma.PrismaClientKnownRequestError(
-        'Record not found',
-        { code: 'P2025', clientVersion: '5.0.0' },
-      );
-
-      mockPrismaService.profile.update.mockRejectedValue(prismaError);
-
-      await expect(service.update(userId, {})).rejects.toThrow(
-        NotFoundException,
-      );
     });
   });
 

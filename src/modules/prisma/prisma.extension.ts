@@ -29,11 +29,6 @@ export const extendPrismaClient = (
               args.data.allergies,
             );
           }
-          if (args.data.bloodType) {
-            args.data.allergies = encryptionService.encrypt(
-              args.data.bloodType,
-            );
-          }
           return query(args);
         },
         async update({ args, query }) {
@@ -66,14 +61,6 @@ export const extendPrismaClient = (
           compute(profile) {
             return profile.allergies
               ? encryptionService.decrypt(profile.allergies)
-              : null;
-          },
-        },
-        bloodType: {
-          needs: { bloodType: true },
-          compute(profile) {
-            return profile.bloodType
-              ? encryptionService.decrypt(profile.bloodType)
               : null;
           },
         },

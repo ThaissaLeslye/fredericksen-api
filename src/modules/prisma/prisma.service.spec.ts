@@ -9,7 +9,10 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from './prisma.service';
+import { extendPrismaClient } from './prisma.extension';
 import { EncryptionService } from '../security/services/encryption/encryption.service';
+import { PrismaClient } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 describe('PrismaService', () => {
   let service: PrismaService;
@@ -20,6 +23,14 @@ describe('PrismaService', () => {
     decrypt: jest.fn(),
   };
 
+  const mockConfigService = {
+    getOrThrow: jest
+      .fn()
+      .mockReturnValue(
+        'postgresql://postgres:password@localhost:5432/fredericksen?schema=public',
+      ),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,12 +39,17 @@ describe('PrismaService', () => {
           provide: EncryptionService,
           useValue: mockEncryptionService,
         },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
       ],
     }).compile();
 
     service = module.get<PrismaService>(PrismaService);
     encryptionService = module.get<EncryptionService>(EncryptionService);
-    jest.spyOn(service, '$connect').mockImplementation(async () => {});
+
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -53,27 +69,129 @@ describe('PrismaService', () => {
     expect(connectSpy).toHaveBeenCalled();
   });
 
+  it('should call $disconnect on module destroy to release database pool resources', async () => {
+    const disconnectSpy = jest
+      .spyOn(service, '$disconnect')
+      .mockImplementation(async () => {});
+    await service.onModuleDestroy();
+    expect(disconnectSpy).toHaveBeenCalled();
+  });
+
+  it('should propagate connection errors and reject if the database is unreachable during startup', async () => {
+    const dbError = new Error('Connection refused at postgresql://db:5432');
+    jest.spyOn(service, '$connect').mockRejectedValue(dbError);
+
+    await expect(service.onModuleInit()).rejects.toThrow(
+      'Connection refused at postgresql://db:5432',
+    );
+  });
   it('should encrypt sensitive profile fields before database insertion', async () => {
     const rawProfileData = {
       medications: 'Dipirona 25mg',
       allergies: 'Penicilina',
-      bloodType: 'O+',
       userId: 'user-uuid',
     };
 
     const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
 
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      await service.client.profile.create({
-        data: rawProfileData,
-      });
-      // eslint-disable-next-line no-empty
-    } catch {}
+    await service.client.profile
+      .create({ data: rawProfileData })
+      .catch(() => {});
 
-    expect(encryptSpy).toHaveBeenCalledTimes(3);
+    expect(encryptSpy).toHaveBeenCalledTimes(2);
     expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.medications);
     expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.allergies);
-    expect(encryptSpy).toHaveBeenCalledWith(rawProfileData.bloodType);
+  });
+
+  it('should encrypt sensitive profile fields during database update operations', async () => {
+    const updateData = {
+      medications: 'Paracetamol 500mg',
+      allergies: 'AAS',
+    };
+
+    const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
+
+    await service.client.profile
+      .update({ where: { userId: 'user-uuid' }, data: updateData })
+      .catch(() => {});
+
+    expect(encryptSpy).toHaveBeenCalledWith(updateData.medications);
+    expect(encryptSpy).toHaveBeenCalledWith(updateData.allergies);
+  });
+
+  it('should skip encryption branches when sensitive fields are omitted or invalid', async () => {
+    const partialData = { userId: 'user-uuid' };
+    const encryptSpy = jest.spyOn(encryptionService, 'encrypt');
+
+    await service.client.profile.create({ data: partialData }).catch(() => {});
+
+    await service.client.profile
+      .update({ where: { userId: 'user-uuid' }, data: {} })
+      .catch(() => {});
+
+    expect(encryptSpy).not.toHaveBeenCalled(); // NOVO: Garante que os desvios condicionais funcionaram
+  });
+
+  it('should decrypt sensitive profile fields when computing query results from database', () => {
+    (encryptionService.decrypt as jest.Mock).mockReturnValue(
+      'decrypted_mock_value',
+    );
+
+    const mockPrismaClient = {
+      $extends: jest
+        .fn()
+        .mockImplementation((extensionObject) => extensionObject),
+    } as unknown as PrismaClient;
+
+    const extensionConfig: any = extendPrismaClient(
+      mockPrismaClient,
+      encryptionService,
+    );
+
+    const computeMedications =
+      extensionConfig.result.profile.medications.compute;
+    const computeAllergies = extensionConfig.result.profile.allergies.compute;
+
+    const mockProfileRecord = {
+      medications: 'encrypted_meds_hex',
+      allergies: 'encrypted_allergies_hex',
+    };
+
+    const decryptedMeds = computeMedications(mockProfileRecord);
+    const decryptedAllergies = computeAllergies(mockProfileRecord);
+
+    expect(encryptionService.decrypt).toHaveBeenCalledWith(
+      'encrypted_meds_hex',
+    );
+    expect(encryptionService.decrypt).toHaveBeenCalledWith(
+      'encrypted_allergies_hex',
+    );
+    expect(decryptedMeds).toBe('decrypted_mock_value');
+    expect(decryptedAllergies).toBe('decrypted_mock_value');
+  });
+
+  it('should return null during result computation if sensitive fields are absent or null', async () => {
+    const clientWithMockDb = service.client.$extends({
+      query: {
+        profile: {
+          findUnique() {
+            return Promise.resolve({
+              medications: null,
+              allergies: null,
+            } as unknown as {
+              medications: string | null;
+              allergies: string | null;
+            });
+          },
+        },
+      },
+    });
+
+    const result = await clientWithMockDb.profile.findUnique({
+      where: { userId: 'user-uuid' },
+    });
+
+    expect(result?.medications).toBeNull();
+    expect(result?.allergies).toBeNull();
   });
 });

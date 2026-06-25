@@ -1,15 +1,31 @@
-import { Controller, Get, Body, Patch, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Body, Patch, UseGuards } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import type { RequestWithUser } from './profile.interfaces';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiCookieAuth,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+} from '@nestjs/swagger';
 import { ProfileEntity } from './entities/profile.entity';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { ActiveUser } from '../auth/auth.interfaces';
 
 @Controller('profile')
 @UseGuards(JwtAuthGuard)
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({
+  description:
+    'Acesso negado: Cookie access_token ausente, expirado ou inválido.',
+})
+@ApiNotFoundResponse({
+  description:
+    'Recurso não encontrado: O perfil solicitado não existe para o usuário informado.',
+})
 export class ProfileController {
-  constructor(private readonly prisma: ProfileService) {}
+  constructor(private readonly profileService: ProfileService) {}
 
   @ApiOperation({ summary: 'Obtém o perfil do usuário logado' })
   @ApiOkResponse({
@@ -17,9 +33,30 @@ export class ProfileController {
     type: ProfileEntity,
   })
   @Get()
-  findOne(@Req() req: RequestWithUser) {
-    const userId = req.user.id;
-    return this.prisma.findOne(userId);
+  findOne(@CurrentUser() user: ActiveUser) {
+    return this.profileService.findOne(user.id);
+  }
+
+  @ApiOperation({ summary: 'Obtém o perfil do usuário logado (alias /me)' })
+  @ApiOkResponse({
+    description: 'Retorna os dados do usuário logado, com o perfil aninhado.',
+  })
+  @Get('me')
+  async findMe(@CurrentUser() user: ActiveUser) {
+    const profileData = await this.profileService.findOne(user.id);
+
+    return {
+      id: profileData.user.id,
+      name: profileData.user.name,
+      email: profileData.user.email,
+      photoUrl: profileData.user.photoUrl,
+      profile: {
+        id: profileData.id,
+        medications: profileData.medications,
+        allergies: profileData.allergies,
+        bloodType: profileData.bloodType,
+      },
+    };
   }
 
   @ApiOperation({ summary: 'Atualiza o perfil do usuário logado' })
@@ -29,10 +66,9 @@ export class ProfileController {
   })
   @Patch()
   update(
-    @Req() req: RequestWithUser,
+    @CurrentUser() user: ActiveUser,
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
-    const userId = req.user.id;
-    return this.prisma.update(userId, updateProfileDto);
+    return this.profileService.update(user.id, updateProfileDto);
   }
 }

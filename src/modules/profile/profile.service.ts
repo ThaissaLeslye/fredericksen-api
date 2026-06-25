@@ -1,48 +1,43 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+/**
+ * @file profile.service.ts
+ * @description Service layer for Profile resource management.
+ * @responsibility Handles retrieval and mutation of user Profile records.
+ * @strategy Delegates all persistence to PrismaService and maps domain errors to HTTP exceptions.
+ * @logic Exposes findOne and update operations; guards against P2025 (record not found) and unknown failures.
+ * @mapping Fulfills the ProfileModule use-cases consumed by ProfileController.
+ */
+
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findOne(userId: string) {
-    return this.prisma.profile.findUnique({
+  async findOne(userId: string) {
+    const profile = await this.prisma.client.profile.findUnique({
       where: { userId },
       include: {
         user: true,
       },
     });
+
+    if (!profile) {
+      throw new NotFoundException(
+        `Perfil para o usuário com ID ${userId} não foi encontrado.`,
+      );
+    }
+
+    return profile;
   }
 
   async update(userId: string, updateProfileDto: UpdateProfileDto) {
-    try {
-      return await this.prisma.profile.update({
-        where: { userId },
-        data: {
-          medications: updateProfileDto.medications,
-          allergies: updateProfileDto.allergies,
-          bloodType: updateProfileDto.bloodType,
-        },
-      });
-    } catch (error) {
-      // Verificamos se o erro é uma instância de erro conhecido do Prisma
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(
-            `Perfil para o usuário com ID ${userId} não existe.`,
-          );
-        }
-      }
+    await this.findOne(userId);
 
-      throw new InternalServerErrorException(
-        'Erro inesperado ao atualizar o perfil.',
-      );
-    }
+    return this.prisma.client.profile.update({
+      where: { userId },
+      data: updateProfileDto,
+    });
   }
 }

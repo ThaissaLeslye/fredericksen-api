@@ -2,6 +2,11 @@
 /dist
 /node_modules
 /build
+node_modules/
+repomix-output.xml
+/coverage-e2e
+tsconfig.build.tsbuildinfo
+tsconfig.tsbuildinfo
 
 # Logs
 logs

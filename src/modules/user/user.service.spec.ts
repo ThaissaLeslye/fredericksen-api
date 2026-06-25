@@ -10,6 +10,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotFoundException } from '@nestjs/common';
 
 describe('UserService', () => {
   let service: UserService;
@@ -33,7 +34,6 @@ describe('UserService', () => {
           useValue: {
             user: {
               create: jest.fn().mockResolvedValue(mockUser),
-              findMany: jest.fn().mockResolvedValue([mockUser]),
               findUnique: jest.fn().mockResolvedValue(mockUser),
               update: jest.fn().mockResolvedValue(mockUser),
               delete: jest.fn().mockResolvedValue(mockUser),
@@ -74,6 +74,42 @@ describe('UserService', () => {
       const result = await service.findOne(id);
 
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id },
+      });
+      expect(result).toEqual(mockUser);
+    });
+
+    it('deve lançar NotFoundException se o usuário não for encontrado', async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      const id = 'uuid-inexistente';
+
+      await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
+    });
+  });
+  describe('update', () => {
+    it('deve atualizar os dados do usuário se ele for encontrado', async () => {
+      const id = 'uuid-123';
+      const updateDto = { name: 'Nome Atualizado' };
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+
+      const result = await service.update(id, updateDto);
+
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id },
+        data: updateDto,
+      });
+      expect(result).toEqual(mockUser);
+    });
+  });
+
+  describe('remove', () => {
+    it('deve deletar o usuário do banco se ele for encontrado', async () => {
+      const id = 'uuid-123';
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+
+      const result = await service.remove(id);
+
+      expect(prisma.user.delete).toHaveBeenCalledWith({
         where: { id },
       });
       expect(result).toEqual(mockUser);

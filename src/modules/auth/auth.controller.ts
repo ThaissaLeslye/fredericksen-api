@@ -1,14 +1,27 @@
-import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import {
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Req,
+  Res,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiOkResponse } from '@nestjs/swagger';
+import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 import type { RequestWithUser } from './auth.interfaces';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({
     summary: 'Inicia o processo de login via Google OAuth2',
@@ -17,7 +30,7 @@ export class AuthController {
     description: 'Redirecionamento para autenticação Google iniciado.',
   })
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   async googleAuth() {}
 
   @ApiOperation({
@@ -29,19 +42,51 @@ export class AuthController {
       'Autenticação processada com sucesso, redirecionamento para aplicação.',
   })
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req: RequestWithUser, @Res() res: Response) {
+    const jwtExpiresInSeconds =
+      this.configService.getOrThrow<number>('JWT_EXPIRES_IN');
+
     const user = await this.authService.validateGoogleUser(req.user);
 
     const { access_token } = await this.authService.generateJwt(user);
 
+    const isProduction =
+      this.configService.get<string>('NODE_ENV')?.trim() === 'production';
+
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: jwtExpiresInSeconds * 1000,
     });
 
-    return res.redirect('http://localhost:4200/home');
+    const frontendUrl = this.configService.getOrThrow<string>(
+      'FREDERICKSEN_WEB_URL',
+    );
+    const redirectUrl = frontendUrl.endsWith('/')
+      ? frontendUrl
+      : `${frontendUrl}/`;
+
+    return res.redirect(redirectUrl);
+  }
+
+  @ApiOperation({
+    summary: 'Invalida a sessão do usuário removendo o cookie de acesso',
+  })
+  @ApiOkResponse({
+    description: 'Cookie removido com sucesso e sessão encerrada localmente.',
+  })
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  googleLogout(@Res({ passthrough: true }) res: Response): void {
+    const isProduction =
+      this.configService.get<string>('NODE_ENV')?.trim() === 'production';
+
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+    });
   }
 }

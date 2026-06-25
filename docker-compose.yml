@@ -1,7 +1,8 @@
 services:
-  db: 
-    image: postgres:16-alpine 
-    container_name: meu-banco-pg
+  db:
+    image: postgres:16-alpine
+    container_name: fredericksen-db-prd
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -9,21 +10,28 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          memory: 256M
     networks:
       - fredericksen-net
 
   api:
-    build: 
+    build:
       context: .
       target: production
-    container_name: minha-api-nestjs
-    env_file:
-    - .env
+    container_name: fredericksen-api-prd
+    restart: unless-stopped
     environment:
+      - NODE_ENV=production
       - FREDERICKSEN_WEB_URL=${FREDERICKSEN_WEB_URL}
       - PORT=${PORT}
       - DATABASE_URL=${DATABASE_URL}
@@ -36,11 +44,30 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "const http = require('http'); const port = process.env.PORT || 3000; const req = http.request({ host: '127.0.0.1', port, path: '/health', method: 'GET', timeout: 3000 }, (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.end();",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     networks:
       - fredericksen-net
-  
+
   tunnel:
-    image: cloudflare/cloudflared:latest
+    image: cloudflare/cloudflared:2026.5.0
     container_name: cloudflared-tunnel
     restart: always
     environment:
