@@ -28,6 +28,9 @@ export class PrismaService
   ) {
     const pool = new Pool({
       connectionString: configService.getOrThrow<string>('DATABASE_URL'),
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
     });
 
     const adapter = new PrismaPg(pool);
