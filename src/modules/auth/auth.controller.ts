@@ -44,8 +44,11 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req: RequestWithUser, @Res() res: Response) {
+    const rawExpiresIn = this.configService.getOrThrow<string | number>(
+      'JWT_EXPIRES_IN',
+    );
     const jwtExpiresInSeconds =
-      this.configService.getOrThrow<number>('JWT_EXPIRES_IN');
+      parseInt(String(rawExpiresIn).replace(/\D/g, ''), 10) || 7200;
 
     const user = await this.authService.validateGoogleUser(req.user);
 
