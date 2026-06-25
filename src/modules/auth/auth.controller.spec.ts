@@ -115,4 +115,22 @@ describe('AuthController', () => {
       );
     });
   });
+  describe('googleLogout', () => {
+    it('should clear the access token cookie with proper security attributes', () => {
+      const mockResponseLogout = {
+        clearCookie: jest.fn(),
+      } as unknown as Response;
+
+      controller.googleLogout(mockResponseLogout);
+
+      expect(mockResponseLogout.clearCookie).toHaveBeenCalledWith(
+        'access_token',
+        expect.objectContaining({
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+        }),
+      );
+    });
+  });
 });
