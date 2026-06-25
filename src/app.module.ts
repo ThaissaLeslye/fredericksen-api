@@ -31,10 +31,14 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
         limit: 10,
       },
     ]),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'documentation'),
-      serveRoot: '/compodoc',
-    }),
+    ...(process.env.NODE_ENV?.trim() !== 'production'
+      ? [
+          ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '..', 'documentation'),
+            serveRoot: '/compodoc',
+          }),
+        ]
+      : []),
     ConfigModule.forRoot({
       validate,
       isGlobal: true,
