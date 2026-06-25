@@ -31,24 +31,6 @@ import type { ActiveUser } from '../auth/auth.interfaces';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({
-    summary: 'Lista todos os usuários (Apenas Admin/Interno)',
-  })
-  @ApiOkResponse({
-    description: 'Lista de todos os usuários retornada com sucesso.',
-    type: [UserEntity],
-  })
-  @ApiCookieAuth()
-  @ApiUnauthorizedResponse({
-    description: 'Acesso negado: Token inválido ou ausente nos cookies.',
-  })
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  async findAll(): Promise<UserEntity[]> {
-    const users = await this.userService.findAll();
-    return users.map((user) => new UserEntity(user));
-  }
-
   @ApiOperation({ summary: 'Retorna o perfil do usuário autenticado' })
   @ApiOkResponse({
     description: 'Dados do usuário atual extraídos do banco de dados.',
