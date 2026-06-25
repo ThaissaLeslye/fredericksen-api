@@ -10,10 +10,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interfaces';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { User } from '@prisma/client';
 
 describe('AuthController', () => {
