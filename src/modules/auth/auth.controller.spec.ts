@@ -10,10 +10,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { Response } from 'express';
 import { RequestWithUser } from './auth.interfaces';
-import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { User } from '@prisma/client';
 
 describe('AuthController', () => {
@@ -45,14 +43,6 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ThrottlerModule.forRoot([
-          {
-            ttl: 60000,
-            limit: 10,
-          },
-        ]),
-      ],
       controllers: [AuthController],
       providers: [
         {
@@ -77,7 +67,6 @@ describe('AuthController', () => {
             }),
           },
         },
-        GoogleAuthGuard,
       ],
     }).compile();
 
@@ -111,7 +100,25 @@ describe('AuthController', () => {
       );
 
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        'https://rick.tllo.app/home',
+        'https://rick.tllo.app/',
+      );
+    });
+  });
+  describe('googleLogout', () => {
+    it('should clear the access token cookie with proper security attributes', () => {
+      const mockResponseLogout = {
+        clearCookie: jest.fn(),
+      } as unknown as Response;
+
+      controller.googleLogout(mockResponseLogout);
+
+      expect(mockResponseLogout.clearCookie).toHaveBeenCalledWith(
+        'access_token',
+        expect.objectContaining({
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+        }),
       );
     });
   });

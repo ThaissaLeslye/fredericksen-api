@@ -1,5 +1,13 @@
-import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import {
+  Controller,
+  Get,
+  Post,
+  UseGuards,
+  Req,
+  Res,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
@@ -9,7 +17,6 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import type { RequestWithUser } from './auth.interfaces';
 
 @Controller('auth')
-@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -58,9 +65,28 @@ export class AuthController {
       'FREDERICKSEN_WEB_URL',
     );
     const redirectUrl = frontendUrl.endsWith('/')
-      ? `${frontendUrl}home`
-      : `${frontendUrl}/home`;
+      ? frontendUrl
+      : `${frontendUrl}/`;
 
     return res.redirect(redirectUrl);
+  }
+
+  @ApiOperation({
+    summary: 'Invalida a sessão do usuário removendo o cookie de acesso',
+  })
+  @ApiOkResponse({
+    description: 'Cookie removido com sucesso e sessão encerrada localmente.',
+  })
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  googleLogout(@Res({ passthrough: true }) res: Response): void {
+    const isProduction =
+      this.configService.get<string>('NODE_ENV')?.trim() === 'production';
+
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+    });
   }
 }
