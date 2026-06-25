@@ -111,7 +111,7 @@ describe('AuthController', () => {
       );
 
       expect(mockResponse.redirect).toHaveBeenCalledWith(
-        'https://rick.tllo.app/home',
+        'https://rick.tllo.app/',
       );
     });
   });
