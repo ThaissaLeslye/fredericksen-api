@@ -15,7 +15,9 @@ import { ApiOperation, ApiOkResponse } from '@nestjs/swagger';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 
 import type { RequestWithUser } from './auth.interfaces';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @Controller('auth')
 export class AuthController {
   constructor(
