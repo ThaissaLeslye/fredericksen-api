@@ -35,6 +35,8 @@ describe('GoogleAuthGuard', () => {
 
     expect(options).toEqual({
       failureRedirect: 'https://rick.tllo.app/login?error=cancel',
+      prompt: 'select_account',
+      session: false,
     });
   });
 
@@ -50,13 +52,15 @@ describe('GoogleAuthGuard', () => {
 
     expect(options).toEqual({
       failureRedirect: 'https://rick.tllo.app/login?error=unauthorized',
+      prompt: 'select_account',
+      session: false,
     });
   });
 
   it('should handle trailing slash anomalies gracefully during redirect construction', () => {
-    jest.spyOn(configService, 'getOrThrow').mockReturnValueOnce(
-      'https://rick.tllo.app',
-    );
+    jest
+      .spyOn(configService, 'getOrThrow')
+      .mockReturnValueOnce('https://rick.tllo.app');
 
     const mockExecutionContext = {
       switchToHttp: jest.fn().mockReturnThis(),
