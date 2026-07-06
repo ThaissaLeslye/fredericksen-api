@@ -24,6 +24,7 @@ import { UserEntity } from './entities/user.entity';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { ActiveUser } from '../auth/auth.interfaces';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('User')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -41,6 +42,7 @@ export class UserController {
   @ApiNotFoundResponse({
     description: 'Usuário logado não foi localizado no banco de dados.',
   })
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@CurrentUser() activeUser: ActiveUser): Promise<UserEntity> {
