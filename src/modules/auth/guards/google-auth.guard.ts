@@ -26,6 +26,8 @@ export class GoogleAuthGuard extends AuthGuard('google') {
 
     return {
       failureRedirect: `${sanitizedUrl}/login?error=${errorType}`,
+      prompt: 'select_account',
+      session: false,
     };
   }
 }
