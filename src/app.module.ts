@@ -7,7 +7,7 @@
  * @mapping Acts as the central registry linking NestJS components, controllers (AppController), and providers (AppService) to the main application context.
  */
 
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -25,12 +25,34 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 60,
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const isProduction =
+          configService.get<string>('NODE_ENV')?.trim() === 'production';
+
+        const multiplier = isProduction ? 1 : 10;
+
+        return [
+          {
+            name: 'short',
+            ttl: 1000,
+            limit: 10 * multiplier,
+          },
+          {
+            name: 'medium',
+            ttl: 10000,
+            limit: 30 * multiplier,
+          },
+          {
+            name: 'long',
+            ttl: 60000,
+            limit: 100 * multiplier,
+          },
+        ];
       },
-    ]),
+    }),
     ...(process.env.NODE_ENV?.trim() !== 'production'
       ? [
           ServeStaticModule.forRoot({

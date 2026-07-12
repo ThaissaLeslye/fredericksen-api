@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 const frontend = process.env.FREDERICKSEN_WEB_URL;
 const portNumber = process.env.PORT || 3000;
@@ -12,13 +13,16 @@ const portNumber = process.env.PORT || 3000;
 const bootstrapLogger = new Logger('Bootstrap');
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['log', 'error', 'warn', 'debug', 'verbose'],
   });
 
+  app.set('trust proxy', true);
+
   app.use(helmet());
-  app.useGlobalFilters(new HttpExceptionFilter());
   app.use(cookieParser());
+
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
