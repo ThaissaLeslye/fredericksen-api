@@ -1,7 +1,6 @@
 {
   "name": "fredericksen-api",
-  "version": "0.1.0",
-  "description": "Api do Fredericksen MVP1.",
+  "description": "Api do Fredericksen",
   "author": "Thaissa Leslye Lourenço",
   "private": true,
   "license": "UNLICENSED",

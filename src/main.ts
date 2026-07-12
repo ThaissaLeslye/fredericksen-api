@@ -47,7 +47,6 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Fredericksen API')
     .setDescription('Documentação do Fredericksen')
-    .setVersion('0.1.0')
     .addCookieAuth('access_token', {
       type: 'apiKey',
       in: 'cookie',
