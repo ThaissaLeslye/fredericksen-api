@@ -23,6 +23,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UserOwnershipGuard } from './guards/user-ownership.guard';
 import type { ActiveUser } from '../auth/auth.interfaces';
 import { SkipThrottle } from '@nestjs/throttler';
 
@@ -66,7 +67,7 @@ export class UserController {
   @ApiNotFoundResponse({
     description: 'O ID fornecido não corresponde a nenhum usuário cadastrado.',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserOwnershipGuard)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<UserEntity> {
     const user = await this.userService.findOne(id);
@@ -89,7 +90,7 @@ export class UserController {
   @ApiNotFoundResponse({
     description: 'Impossível atualizar: Usuário inexistente.',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserOwnershipGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -106,7 +107,7 @@ export class UserController {
   @ApiNotFoundResponse({
     description: 'Impossível remover: Usuário não localizado.',
   })
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserOwnershipGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(id);
