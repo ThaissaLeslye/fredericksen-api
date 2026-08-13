@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from './google.strategy';
 import { Profile } from 'passport-google-oauth20';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('GoogleStrategy', () => {
   let strategy: GoogleStrategy;
@@ -88,7 +89,7 @@ describe('GoogleStrategy', () => {
         'mock-refresh-token',
         mockProfile as Profile,
       ),
-    ).toThrow('No email found in Google profile');
+    ).toThrow(UnauthorizedException);
   });
 
   it('deve lançar uma exceção se o objeto name não for fornecido pelo provedor externo', () => {
@@ -103,6 +104,6 @@ describe('GoogleStrategy', () => {
         'mock-refresh-token',
         mockProfile as Profile,
       ),
-    ).toThrow('No name found in Google profile');
+    ).toThrow(UnauthorizedException);
   });
 });

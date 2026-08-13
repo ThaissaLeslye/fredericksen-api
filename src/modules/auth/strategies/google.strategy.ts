@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { PassportStrategy } from '@nestjs/passport';
@@ -28,11 +28,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       userPhotos && userPhotos.length > 0 ? userPhotos[0].value : '';
 
     if (!emails || emails.length === 0) {
-      throw new Error('No email found in Google profile');
+      throw new UnauthorizedException('No email found in Google profile');
     }
 
     if (!name) {
-      throw new Error('No name found in Google profile');
+      throw new UnauthorizedException('No name found in Google profile');
     }
 
     const user: GoogleUser = {
